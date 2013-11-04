@@ -176,7 +176,7 @@ module.exports = (function(){
           pos = clone(pos1);
         }
         if (result0 !== null) {
-          result0 = (function(offset, line, column, left, right) { return v[left] = right })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
+          result0 = (function(offset, line, column, left, right) { return ['=', left, right] })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
         }
         if (result0 === null) {
           pos = clone(pos0);
@@ -221,7 +221,7 @@ module.exports = (function(){
           pos = clone(pos1);
         }
         if (result0 !== null) {
-          result0 = (function(offset, line, column, left, right) { return parseInt(left) + right })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
+          result0 = (function(offset, line, column, left, right) { return ['+', left, right] })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
         }
         if (result0 === null) {
           pos = clone(pos0);
@@ -257,7 +257,7 @@ module.exports = (function(){
             pos = clone(pos1);
           }
           if (result0 !== null) {
-            result0 = (function(offset, line, column, left, right) { return left - right })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
+            result0 = (function(offset, line, column, left, right) { return ['-', left, right] })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
           }
           if (result0 === null) {
             pos = clone(pos0);
@@ -303,7 +303,7 @@ module.exports = (function(){
           pos = clone(pos1);
         }
         if (result0 !== null) {
-          result0 = (function(offset, line, column, left, right) { return left * right })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
+          result0 = (function(offset, line, column, left, right) { return ['*', left, right] })(pos0.offset, pos0.line, pos0.column, result0[0], result0[2]);
         }
         if (result0 === null) {
           pos = clone(pos0);
@@ -321,7 +321,7 @@ module.exports = (function(){
         pos0 = clone(pos);
         result0 = parse_identifier();
         if (result0 !== null) {
-          result0 = (function(offset, line, column, identifier) { return v[identifier] })(pos0.offset, pos0.line, pos0.column, result0);
+          result0 = (function(offset, line, column, identifier) { return identifier })(pos0.offset, pos0.line, pos0.column, result0);
         }
         if (result0 === null) {
           pos = clone(pos0);
@@ -408,9 +408,10 @@ module.exports = (function(){
       
       function parse_identifier() {
         var result0, result1, result2, result3, result4;
-        var pos0;
+        var pos0, pos1;
         
         pos0 = clone(pos);
+        pos1 = clone(pos);
         result0 = [];
         result1 = parse_ws();
         while (result1 !== null) {
@@ -461,18 +462,24 @@ module.exports = (function(){
                 result0 = [result0, result1, result2, result3];
               } else {
                 result0 = null;
-                pos = clone(pos0);
+                pos = clone(pos1);
               }
             } else {
               result0 = null;
-              pos = clone(pos0);
+              pos = clone(pos1);
             }
           } else {
             result0 = null;
-            pos = clone(pos0);
+            pos = clone(pos1);
           }
         } else {
           result0 = null;
+          pos = clone(pos1);
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, line, column, first, rest) { return ['identifier', first + rest.join('')] })(pos0.offset, pos0.line, pos0.column, result0[1], result0[2]);
+        }
+        if (result0 === null) {
           pos = clone(pos0);
         }
         return result0;
@@ -554,7 +561,7 @@ module.exports = (function(){
           pos = clone(pos1);
         }
         if (result0 !== null) {
-          result0 = (function(offset, line, column, digits) { return parseInt(digits.join(""), 2) })(pos0.offset, pos0.line, pos0.column, result0[2]);
+          result0 = (function(offset, line, column, digits) { return parseInt(digits.join(''), 2) })(pos0.offset, pos0.line, pos0.column, result0[2]);
         }
         if (result0 === null) {
           pos = clone(pos0);
@@ -631,7 +638,7 @@ module.exports = (function(){
             pos = clone(pos1);
           }
           if (result0 !== null) {
-            result0 = (function(offset, line, column, digits) { return parseInt(digits.join(""), 16) })(pos0.offset, pos0.line, pos0.column, result0[2]);
+            result0 = (function(offset, line, column, digits) { return parseInt(digits.join(''), 16) })(pos0.offset, pos0.line, pos0.column, result0[2]);
           }
           if (result0 === null) {
             pos = clone(pos0);
@@ -708,7 +715,7 @@ module.exports = (function(){
               pos = clone(pos1);
             }
             if (result0 !== null) {
-              result0 = (function(offset, line, column, digits) { return parseInt(digits.join(""), 16) })(pos0.offset, pos0.line, pos0.column, result0[1]);
+              result0 = (function(offset, line, column, digits) { return parseInt(digits.join(''), 16) })(pos0.offset, pos0.line, pos0.column, result0[1]);
             }
             if (result0 === null) {
               pos = clone(pos0);
@@ -771,7 +778,7 @@ module.exports = (function(){
                 pos = clone(pos1);
               }
               if (result0 !== null) {
-                result0 = (function(offset, line, column, digits) { return parseInt(digits.join(""), 10) })(pos0.offset, pos0.line, pos0.column, result0[1]);
+                result0 = (function(offset, line, column, digits) { return parseInt(digits.join(''), 10) })(pos0.offset, pos0.line, pos0.column, result0[1]);
               }
               if (result0 === null) {
                 pos = clone(pos0);
@@ -936,9 +943,6 @@ module.exports = (function(){
         return cleanExpected;
       }
       
-      
-      
-          v = {}
       
       
       var result = parseFunctions[startRule]();
