@@ -1,13 +1,13 @@
-/*
-* Classic example grammar, which recognizes simple arithmetic expressions like
-* "2*(3+4)". The parser generated from this grammar then computes their value.
-*/
-
 start
-    = additive+
+    = additive*
+
+assignable
+    = left:identifier "=" right:additive
+    / additive
 
 additive
     = left:multiplicative "+" right:additive { return left + right; }
+    / left:multiplicative "-" right:additive { return left - right; }
     / multiplicative
 
 multiplicative
@@ -15,14 +15,18 @@ multiplicative
     / primary
 
 primary
-    = ws* integer:integer ws* { return integer; }
+    = identifier:identifier { return identifier; }
+    / integer:integer { return integer; }
     / ws* "(" additive:additive ")" ws* { return additive; }
 
+identifier
+    = ws* [A-Za-z_][A-Za-z_0-9]* ws*
+
 integer "integer"
-    = "0b" digits:[01]+ { return parseInt(digits.join(""), 2); }
-    / "0x" digits:[0-9A-F]+ { return parseInt(digits.join(""), 16); }
-    / digits:[0-9A-F]+ "h" { return parseInt(digits.join(""), 16); }
-    / digits:[0-9]+ { return parseInt(digits.join(""), 10); }
+    = ws* "0b" digits:[01]+ ws*     { return parseInt(digits.join(""), 2); }
+    / ws* "0x" digits:[0-9A-F]+ ws* { return parseInt(digits.join(""), 16); }
+    / ws* digits:[0-9A-F]+ "h" ws*  { return parseInt(digits.join(""), 16); }
+    / ws* digits:[0-9]+ ws*         { return parseInt(digits.join(""), 10); }
 
 ws
     = [ \t\r\n]

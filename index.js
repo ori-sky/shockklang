@@ -1,2 +1,8 @@
 var parser = require('./parser')
-console.log(parser.parse('0x10+20``this is a test `` ``another test````  ``+2'))
+var fs = require('fs')
+
+fs.readFile('test.shk', function(err, data)
+{
+    if(err) throw err
+    console.log(parser.parse(data.toString()))
+})
