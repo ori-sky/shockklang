@@ -20,7 +20,16 @@ var filename = process.argv[2] !== undefined ? process.argv[2] : 'test.shk'
 fs.readFile(filename, function(err, data)
 {
     if(err) throw err
-    var parsed = parser.parse(data.toString())
+
+    try
+    {
+        var parsed = parser.parse(data.toString())
+    }
+    catch(e)
+    {
+        console.log(e)
+        return
+    }
 
     parsed.forEach(function(v, k, a)
     {
