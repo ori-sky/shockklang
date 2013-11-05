@@ -49,18 +49,44 @@ var evaluate = function(obj)
                 return evaluate(v)
             }).slice(0, fn.ins.length)
 
-            state.scope.push({})
+            var scope = {}
 
+            // put inputs into function scope
             var i = 0
             for(var k in fn.ins)
             {
-                state.top()[fn.ins[k].data] = params[i++]
+                scope[fn.ins[k].data] = params[i++]
             }
+
+            // set initial values of outputs
+            for(var k in fn.outs)
+            {
+                scope[fn.outs[k].identifier.data] = evaluate(fn.outs[k].initial)
+            }
+
+            state.scope.push(scope)
+
+            // evaluate each statement in function code
+            fn.code.forEach(function(v, k, a)
+            {
+                evaluate(v)
+            })
+
+            // get outputs from function scope
+            var outputs = fn.outs.map(function(v, k, a)
+            {
+                return state.top()[v.identifier.data]
+            })
 
             state.scope.pop()
 
-            console.log(params)
-            return 'TODO: call `' + obj.identifier + '`'
+            switch(outputs.length)
+            {
+                case 0: return undefined
+                case 1: return outputs[0]
+                default: return outputs
+            }
+        // TODO: implement scope for blocks too
         case 'infix':
             return 'TODO: infix'
         default:
