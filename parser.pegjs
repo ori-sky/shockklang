@@ -1,5 +1,9 @@
 start
-    = assignment*
+    = statement*
+
+statement
+    = assignment
+    / ws* "{" statements:statement* "}" ws* { return ['block'].concat(statements) }
 
 assignment
     = left:identifier "=" right:additive { return ['=', left, right] }
@@ -26,17 +30,28 @@ infix
 
 primary
     = call
+    / function
     / identifier
     / string
     / number
     / ws* "(" assignment:assignment ")" ws* { return assignment }
 
 call
-    = identifier:identifier "(" params:params ")" { return ['call', identifier].concat(params) }
+    = identifier:identifier "(" params:params ")" ws* { return ['call', identifier].concat(params) }
+
+function
+    = ws* "(" i:params "=>" o:outputs ")" ws* { return ['function', ['inputs'].concat(i), ['outputs'].concat(o)] }
 
 params
     = first:assignment "," rest:params { return [first].concat(rest) }
     / first:assignment { return [first] }
+
+outputs
+    = first:output "," rest:outputs { return [first].concat(rest) }
+    / first:output { return [first] }
+
+output
+    = identifier:identifier ws* ":" ws* initial:assignment { return ['output', identifier, initial] }
 
 identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return ['identifier', first + rest.join('')] }
