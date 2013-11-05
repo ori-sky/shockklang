@@ -25,10 +25,17 @@ infix
     / primary
 
 primary
-    = identifier
+    = call
+    / identifier
     / string
     / number
     / ws* "(" assignment:assignment ")" ws* { return assignment }
+
+call
+    = identifier "(" params:param* ")" { return ['call', identifier, params] }
+
+param
+    = assignment /* TODO */
 
 identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return ['identifier', first + rest.join('')] }
