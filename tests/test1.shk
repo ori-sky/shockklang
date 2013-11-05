@@ -1,0 +1,7 @@
+sum = (in  =>  out: 0)
+{
+    in += out
+}
+
+result_call = sum(5;3;2)
+result_infix = 5 sum! 3 sum! 2
