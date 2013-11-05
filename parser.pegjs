@@ -9,23 +9,45 @@ assignment
     = left:identifier "=" right:additive { return ['=', left, right] }
     / additive
 
+logical
+    = left:bitwise "||" right:logical { return ['||', left, right] }
+    / left:bitwise "&&" right:logical { return ['&&', left, right] }
+    / bitwise
+
+bitwise
+    = left:equalitive "|" right:bitwise { return ['|', left, right] }
+    / left:equalitive "&" right:bitwise { return ['&', left, right] }
+    / equalitive
+
+equalitive
+    = left:comparative "==" right:equalitive { return ['==', left, right] }
+    / left:comparative "!=" right:equalitive { return ['!=', left, right] }
+    / comparative
+
+comparative
+    = left:shiftive "<=" right:comparative { return ['<=', left, right] }
+    / left:shiftive ">=" right:comparative { return ['>=', left, right] }
+    / left:shiftive "<" right:comparative { return ['<', left, right] }
+    / left:shiftive ">" right:comparative { return ['>', left, right] }
+    / shiftive
+
+shiftive
+    = left:additive "<<" right:shiftive { return ['<<', left, right] }
+    / left:additive ">>" right:shiftive { return ['>>', left, right] }
+    / additive
+
 additive
     = left:multiplicative "+" right:additive { return ['+', left, right] }
     / left:multiplicative "-" right:additive { return ['-', left, right] }
     / multiplicative
 
 multiplicative
-    = left:comparative "*" right:multiplicative { return ['*', left, right] }
-    / left:comparative "/" right:multiplicative { return ['/', left, right] }
-    / comparative
-
-comparative
-    = left:infix "==" right:comparative { return ['==', left, right] }
-    / left:infix "!=" right:comparative { return ['!=', left, right] }
+    = left:infix "*" right:multiplicative { return ['*', left, right] }
+    / left:infix "/" right:multiplicative { return ['/', left, right] }
     / infix
 
 infix
-    = left:primary infix:identifier "!" right:infix { return ['infix', left, infix, right] }
+    = left:primary infix:identifier "!" right:infix { return ['infix', infix, left, right] }
     / primary
 
 primary
