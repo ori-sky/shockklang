@@ -17,10 +17,15 @@ var evaluate = function(obj)
             return (state.vars[obj.left.data] = evaluate(obj.right))
         case '+':
             return evaluate(obj.left) + evaluate(obj.right)
+        case '-':
+            return evaluate(obj.left) - evaluate(obj.right)
         case '*':
             return evaluate(obj.left) * evaluate(obj.right)
         case 'number':
+        case 'string':
             return obj.data
+        case 'identifier':
+            return state.vars[obj.data]
         default:
             if(obj.type !== undefined) console.log('type unknown: ' + obj.type)
             else                       console.log('type missing: ' + obj[0])
