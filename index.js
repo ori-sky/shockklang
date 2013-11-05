@@ -15,7 +15,7 @@ var evaluate = function(obj)
     switch(obj.type)
     {
         case '=':
-            return (state.top[obj.left.data] = evaluate(obj.right))
+            return (state.top()[obj.left.data] = evaluate(obj.right))
         case '+':
             return evaluate(obj.left) + evaluate(obj.right)
         case '-':
@@ -26,26 +26,39 @@ var evaluate = function(obj)
         case 'string':
             return obj.data
         case 'identifier':
-            return state.top[obj.data]
+            return state.top()[obj.data]
         case 'function':
             return {type:'function', ins:obj.ins, outs:obj.outs, code:obj.code}
         case 'call':
-            if(state.top[obj.identifier] === undefined)
+            var fn = state.top()[obj.identifier]
+
+            if(fn === undefined)
                 throw new Error('identifier `' + obj.identifier + '` is undefined')
 
-            if(state.top[obj.identifier].type !== 'function')
+            if(fn.type !== 'function')
                 throw new Error('identifier `' + obj.identifier + '` is not a function')
 
-            if(obj.params.length < state.top[obj.identifier].ins.length)
+            if(obj.params.length < fn.ins.length)
                 throw new Error('not enough params')
 
-            if(obj.params.length > state.top[obj.identifier].ins.length)
-                console.log('[warning] too many params, truncating')
+            if(obj.params.length > fn.ins.length)
+                console.log('\x1B[1m\x1B[33m-> warning <-\x1B[0m too many params, truncating')
 
             var params = obj.params.map(function(v, k, a)
             {
                 return evaluate(v)
-            }).slice(0, state.top[obj.identifier].ins.length)
+            }).slice(0, fn.ins.length)
+
+            state.scope.push({})
+
+            var i = 0
+            for(var k in fn.ins)
+            {
+                state.top()[fn.ins[k].data] = params[i++]
+            }
+
+            state.scope.pop()
+
             console.log(params)
             return 'TODO: call `' + obj.identifier + '`'
         case 'infix':
