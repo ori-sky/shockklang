@@ -11,8 +11,13 @@ additive
     / multiplicative
 
 multiplicative
-    = left:infix "*" right:multiplicative { return ['*', left, right] }
-    / left:infix "/" right:multiplicative { return ['/', left, right] }
+    = left:comparative "*" right:multiplicative { return ['*', left, right] }
+    / left:comparative "/" right:multiplicative { return ['/', left, right] }
+    / comparative
+
+comparative
+    = left:infix "==" right:comparative { return ['==', left, right] }
+    / left:infix "!=" right:comparative { return ['!=', left, right] }
     / infix
 
 infix
