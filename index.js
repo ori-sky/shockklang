@@ -16,7 +16,8 @@ var evaluate = function(o)
     return s
 }
 
-fs.readFile('test.shk', function(err, data)
+var filename = process.argv[2] !== undefined ? process.argv[2] : 'test.shk'
+fs.readFile(filename, function(err, data)
 {
     if(err) throw err
     var parsed = parser.parse(data.toString())
