@@ -22,6 +22,14 @@ var evaluate = function(obj)
             return evaluate(obj.left) - evaluate(obj.right)
         case '*':
             return evaluate(obj.left) * evaluate(obj.right)
+        case '&':
+            return evaluate(obj.left) & evaluate(obj.right)
+        case '|':
+            return evaluate(obj.left) | evaluate(obj.right)
+        case '<<':
+            return evaluate(obj.left) << evaluate(obj.right)
+        case '>>':
+            return evaluate(obj.left) >> evaluate(obj.right)
         case 'number':
         case 'string':
             return obj.data
@@ -107,5 +115,9 @@ fs.readFile(filename, function(err, data)
             console.log('' + evaluate(v))
         })
     }
-    catch(e) { return console.log(e) }
+    catch(e)
+    {
+        console.log(e)
+        return
+    }
 })
