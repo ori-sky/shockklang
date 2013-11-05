@@ -3,6 +3,9 @@ sum = (a => o:0)
     o = o + a
 }
 sum(5)
+sum(5*( 2+3 ))
+sum(5,2)
+sum2(5)
 
 `` TODO: don't use this when testing because it's far too messy
    TODO: implement o += a
