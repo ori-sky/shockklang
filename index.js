@@ -42,8 +42,11 @@ var evaluate = function(obj)
             if(obj.params.length > state.top[obj.identifier].ins.length)
                 console.log('[warning] too many params, truncating')
 
-            console.log('params: ' + util.inspect(obj.params))
-            var params = 1
+            var params = obj.params.map(function(v, k, a)
+            {
+                return evaluate(v)
+            }).slice(0, state.top[obj.identifier].ins.length)
+            console.log(params)
             return 'TODO: call `' + obj.identifier + '`'
         case 'infix':
             return 'TODO: infix'
@@ -62,9 +65,8 @@ fs.readFile(filename, function(err, data)
     {
         parser.parse(data.toString()).forEach(function(v, k, a)
         {
-            console.log(evaluate(v))
+            console.log('' + evaluate(v))
         })
-        console.log(state)
     }
     catch(e) { return console.log(e) }
 })
