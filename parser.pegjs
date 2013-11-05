@@ -23,7 +23,7 @@
     Call = function(identifier, params)
     {
         this.type = 'call'
-        this.identifier = identifier
+        this.identifier = identifier.data
         this.params = params
     }
 
@@ -100,7 +100,7 @@ call
     = identifier:identifier "(" params:params ")" ws* { return new Call(identifier, params) }
 
 function
-    = ws* "(" i:params "=>" o:outputs ")" s:statement { return new Func(['inputs'].concat(i), ['outputs'].concat(o), s) }
+    = ws* "(" i:params "=>" o:outputs ")" s:statement { return new Func(i, o, s) }
 
 params
     = first:assignment "," rest:params { return [first].concat(rest) }
