@@ -52,6 +52,7 @@ outputs
 
 output
     = identifier:identifier ws* ":" ws* initial:assignment { return ['output', identifier, initial] }
+    / identifier:identifier ws* { return ['output', identifier] }
 
 identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return ['identifier', first + rest.join('')] }
