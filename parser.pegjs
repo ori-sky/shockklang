@@ -3,7 +3,7 @@ start
 
 statement
     = assignment
-    / ws* "{" statements:statement* "}" ws* { return ['block'].concat(statements) }
+    / ws* "{" ws* statements:statement* ws* "}" ws* { return ['block'].concat(statements) }
 
 assignment
     = left:identifier "=" right:additive { return ['=', left, right] }
@@ -40,7 +40,7 @@ call
     = identifier:identifier "(" params:params ")" ws* { return ['call', identifier].concat(params) }
 
 function
-    = ws* "(" i:params "=>" o:outputs ")" ws* { return ['function', ['inputs'].concat(i), ['outputs'].concat(o)] }
+    = ws* "(" i:params "=>" o:outputs ")" s:statement { return ['function', ['inputs'].concat(i), ['outputs'].concat(o), s] }
 
 params
     = first:assignment "," rest:params { return [first].concat(rest) }
