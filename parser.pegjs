@@ -1,3 +1,18 @@
+{
+    Op2 = function(type, left, right)
+    {
+        this.type = type
+        this.left = left
+        this.right = right
+    }
+
+    Data = function(type, data)
+    {
+        this.type = type
+        this.data = data
+    }
+}
+
 start
     = statement*
 
@@ -6,44 +21,44 @@ statement
     / ws* "{" ws* statements:statement* ws* "}" ws* { return ['block'].concat(statements) }
 
 assignment
-    = left:identifier "=" right:additive { return ['=', left, right] }
+    = left:identifier "=" right:additive { return new Op2('=', left, right) }
     / additive
 
 logical
-    = left:bitwise "||" right:logical { return ['||', left, right] }
-    / left:bitwise "&&" right:logical { return ['&&', left, right] }
+    = left:bitwise "||" right:logical { return new Op2('||', left, right) }
+    / left:bitwise "&&" right:logical { return new Op2('&&', left, right) }
     / bitwise
 
 bitwise
-    = left:equalitive "|" right:bitwise { return ['|', left, right] }
-    / left:equalitive "&" right:bitwise { return ['&', left, right] }
+    = left:equalitive "|" right:bitwise { return new Op2('|', left, right) }
+    / left:equalitive "&" right:bitwise { return new Op2('&', left, right) }
     / equalitive
 
 equalitive
-    = left:comparative "==" right:equalitive { return ['==', left, right] }
-    / left:comparative "!=" right:equalitive { return ['!=', left, right] }
+    = left:comparative "==" right:equalitive { return new Op2('==', left, right) }
+    / left:comparative "!=" right:equalitive { return new Op2('!=', left, right) }
     / comparative
 
 comparative
-    = left:shiftive "<=" right:comparative { return ['<=', left, right] }
-    / left:shiftive ">=" right:comparative { return ['>=', left, right] }
-    / left:shiftive "<" right:comparative { return ['<', left, right] }
-    / left:shiftive ">" right:comparative { return ['>', left, right] }
+    = left:shiftive "<=" right:comparative { return new Op2('<=', left, right) }
+    / left:shiftive ">=" right:comparative { return new Op2('>=', left, right) }
+    / left:shiftive "<" right:comparative { return new Op2('<', left, right) }
+    / left:shiftive ">" right:comparative { return new Op2('>', left, right) }
     / shiftive
 
 shiftive
-    = left:additive "<<" right:shiftive { return ['<<', left, right] }
-    / left:additive ">>" right:shiftive { return ['>>', left, right] }
+    = left:additive "<<" right:shiftive { return new Op2('<<', left, right) }
+    / left:additive ">>" right:shiftive { return new Op2('>>', left, right) }
     / additive
 
 additive
-    = left:multiplicative "+" right:additive { return ['+', left, right] }
-    / left:multiplicative "-" right:additive { return ['-', left, right] }
+    = left:multiplicative "+" right:additive { return new Op2('+', left, right) }
+    / left:multiplicative "-" right:additive { return new Op2('-', left, right) }
     / multiplicative
 
 multiplicative
-    = left:infix "*" right:multiplicative { return ['*', left, right] }
-    / left:infix "/" right:multiplicative { return ['/', left, right] }
+    = left:infix "*" right:multiplicative { return new Op2('*', left, right) }
+    / left:infix "/" right:multiplicative { return new Op2('/', left, right) }
     / infix
 
 infix
@@ -77,17 +92,17 @@ output
     / identifier:identifier ws* { return ['output', identifier] }
 
 identifier
-    = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return ['identifier', first + rest.join('')] }
+    = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
 
 string
     = ws* "\"" chars:(!"\"" .)* "\"" ws* { return ['string', chars.map(function(v,k,a) { return v[1] }).join('')] }
 
 number
-    = ws* "0b" digits:[01]+ ws*              { return ['number', parseInt(digits.join(''), 2)] }
-    / ws* "0x" digits:[0-9A-F]+ ws*          { return ['number', parseInt(digits.join(''), 16)] }
-    / ws* digits:[0-9A-F]+ "h" ws*           { return ['number', parseInt(digits.join(''), 16)] }
-    / ws* before:[0-9]+ "." after:[0-9]+ ws* { return ['number', parseFloat(before.join('') + '.' + after.join(''))] }
-    / ws* digits:[0-9]+ ws*                  { return ['number', parseInt(digits.join(''), 10)] }
+    = ws* "0b" digits:[01]+ ws*              { return new Data('number', parseInt(digits.join(''), 2)) }
+    / ws* "0x" digits:[0-9A-F]+ ws*          { return new Data('number', parseInt(digits.join(''), 16)) }
+    / ws* digits:[0-9A-F]+ "h" ws*           { return new Data('number', parseInt(digits.join(''), 16)) }
+    / ws* before:[0-9]+ "." after:[0-9]+ ws* { return new Data('number', parseFloat(before.join('') + '.' + after.join(''))) }
+    / ws* digits:[0-9]+ ws*                  { return new Data('number', parseInt(digits.join(''), 10)) }
 
 ws
     = [ \t\r\n]

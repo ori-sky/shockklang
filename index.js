@@ -2,37 +2,43 @@ var parser = require('./parser')
 var fs = require('fs')
 var util = require('util')
 
-var evaluate = function(o)
+var state =
 {
-    if(typeof o !== 'object') return ' ' + o.toString()
+    vars: {}
+}
 
-    var s = '\n' + o[0]
+var evaluate = function(obj)
+{
+    if(typeof obj !== 'object') return ' ' + obj.toString()
 
-    for(var i=1; i<o.length; ++i)
+    switch(obj.type)
     {
-        s += evaluate(o[i]).replace(/^/gm, '  ')
+        case '=':
+            return (state.vars[obj.left.data] = evaluate(obj.right))
+        case '+':
+            return evaluate(obj.left) + evaluate(obj.right)
+        case '*':
+            return evaluate(obj.left) * evaluate(obj.right)
+        case 'number':
+            return obj.data
+        default:
+            if(obj.type !== undefined) console.log('type unknown: ' + obj.type)
+            else                       console.log('type missing: ' + obj[0])
+            break
     }
-
-    return s
 }
 
 var filename = process.argv[2] !== undefined ? process.argv[2] : 'test.shk'
 fs.readFile(filename, function(err, data)
 {
     if(err) throw err
-
     try
     {
-        var parsed = parser.parse(data.toString())
+        parser.parse(data.toString()).forEach(function(v, k, a)
+        {
+            console.log(evaluate(v))
+        })
+        console.log(state)
     }
-    catch(e)
-    {
-        console.log(e)
-        return
-    }
-
-    parsed.forEach(function(v, k, a)
-    {
-        console.log(evaluate(v))
-    })
+    catch(e) { return console.log(e) }
 })
