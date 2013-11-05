@@ -1,7 +1,11 @@
+`` function with 1 input and 1 output ``
 sum = (in  =>  out: 0)
 {
     in += out
 }
 
+`` parentheses syntax ``
 result_call = sum(5;3;2)
+
+`` infix syntax ``
 result_infix = 5 sum! 3 sum! 2
