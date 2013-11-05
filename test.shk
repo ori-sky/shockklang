@@ -2,11 +2,14 @@
 total = 5 + 3*3 + (7 * (  8-3))
 
 `` example decimal ``
-total + 32.65
+``total + 32.65``
 
 `` example string ``
-string = "blah blah test"
+``string = "blah blah test"``
 
 `` example infix ``
-m = 5 mod! 2
-n = 5 mod! 2 mod! 3
+``m = 5 mod! 2``
+``n = 5 sum! 2 sum! 3 mod! 2``
+
+`` example call ``
+``result = sum(5, 2, 3) mod! 2``
