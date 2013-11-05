@@ -11,7 +11,12 @@ additive
     / multiplicative
 
 multiplicative
-    = left:primary "*" right:multiplicative { return ['*', left, right] }
+    = left:infix "*" right:multiplicative { return ['*', left, right] }
+    / left:infix "/" right:multiplicative { return ['/', left, right] }
+    / infix
+
+infix
+    = left:primary infix:identifier "!" right:infix { return ['infix', left, infix, right] }
     / primary
 
 primary
