@@ -15,18 +15,23 @@ multiplicative
     / primary
 
 primary
-    = identifier:identifier { return identifier }
-    / integer:integer { return integer }
+    = identifier
+    / string
+    / number
     / ws* "(" assignment:assignment ")" ws* { return assignment }
 
 identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return ['identifier', first + rest.join('')] }
 
-integer "integer"
-    = ws* "0b" digits:[01]+ ws*     { return parseInt(digits.join(''), 2) }
-    / ws* "0x" digits:[0-9A-F]+ ws* { return parseInt(digits.join(''), 16) }
-    / ws* digits:[0-9A-F]+ "h" ws*  { return parseInt(digits.join(''), 16) }
-    / ws* digits:[0-9]+ ws*         { return parseInt(digits.join(''), 10) }
+string
+    = ws* "\"" chars:(!"\"" .)* "\"" ws* { return ['string', chars.map(function(v,k,a) { return v[1] }).join('')] }
+
+number
+    = ws* "0b" digits:[01]+ ws*              { return ['number', parseInt(digits.join(''), 2)] }
+    / ws* "0x" digits:[0-9A-F]+ ws*          { return ['number', parseInt(digits.join(''), 16)] }
+    / ws* digits:[0-9A-F]+ "h" ws*           { return ['number', parseInt(digits.join(''), 16)] }
+    / ws* before:[0-9]+ "." after:[0-9]+ ws* { return ['number', parseFloat(before.join('') + '.' + after.join(''))] }
+    / ws* digits:[0-9]+ ws*                  { return ['number', parseInt(digits.join(''), 10)] }
 
 ws
     = [ \t\r\n]
