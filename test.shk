@@ -1,6 +1,6 @@
 `` example expressions ``
 total = 3*(3+(7-1))
-total = 5 + 3*3 + (7 * (  8-3))
+total = total + 5 + 3*3 + (7 * (  8-3))
 
 `` example decimal ``
 total + 32.65
