@@ -12,6 +12,13 @@
         this.data = data
     }
 
+    Output = function(identifier, initial)
+    {
+        this.type = 'output'
+        this.identifier = identifier
+        this.initial = initial
+    }
+
     Func = function(ins, outs, code)
     {
         this.type = 'function'
@@ -41,7 +48,10 @@ start
 
 statement
     = assignment
-    / ws* "{" ws* statements:statement* ws* "}" ws* { return ['block'].concat(statements) }
+    / block
+
+block
+    = ws* "{" ws* statements:statement* ws* "}" ws* { return new Data('block', statements) }
 
 assignment
     = left:identifier "=" right:additive { return new Op2('=', left, right) }
@@ -100,7 +110,7 @@ call
     = identifier:identifier "(" params:params ")" ws* { return new Call(identifier, params) }
 
 function
-    = ws* "(" i:params "=>" o:outputs ")" s:statement { return new Func(i, o, s) }
+    = ws* "(" i:params "=>" o:outputs ")" code:block { return new Func(i, o, code.data) }
 
 params
     = first:assignment "," rest:params { return [first].concat(rest) }
@@ -111,8 +121,8 @@ outputs
     / first:output { return [first] }
 
 output
-    = identifier:identifier ws* ":" ws* initial:assignment { return ['output', identifier, initial] }
-    / identifier:identifier ws* { return ['output', identifier] }
+    = identifier:identifier ws* ":" ws* initial:assignment { return new Output(identifier, initial) }
+    / identifier:identifier ws* { return new Output(identifier) }
 
 identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
