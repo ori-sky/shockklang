@@ -4,7 +4,8 @@ var util = require('util')
 
 var state =
 {
-    vars: {}
+    scope: [{}],
+    top: function() { return this.scope[this.scope.length - 1] }
 }
 
 var evaluate = function(obj)
@@ -14,7 +15,7 @@ var evaluate = function(obj)
     switch(obj.type)
     {
         case '=':
-            return (state.vars[obj.left.data] = evaluate(obj.right))
+            return (state.top[obj.left.data] = evaluate(obj.right))
         case '+':
             return evaluate(obj.left) + evaluate(obj.right)
         case '-':
@@ -25,13 +26,27 @@ var evaluate = function(obj)
         case 'string':
             return obj.data
         case 'identifier':
-            return state.vars[obj.data]
+            return state.top[obj.data]
         case 'function':
             return {type:'function', ins:obj.ins, outs:obj.outs, code:obj.code}
         case 'call':
-            return 'call TODO'
+            if(state.top[obj.identifier] === undefined)
+                throw new Error('identifier `' + obj.identifier + '` is undefined')
+
+            if(state.top[obj.identifier].type !== 'function')
+                throw new Error('identifier `' + obj.identifier + '` is not a function')
+
+            if(obj.params.length < state.top[obj.identifier].ins.length)
+                throw new Error('not enough params')
+
+            if(obj.params.length > state.top[obj.identifier].ins.length)
+                console.log('[warning] too many params, truncating')
+
+            console.log('params: ' + util.inspect(obj.params))
+            var params = 1
+            return 'TODO: call `' + obj.identifier + '`'
         case 'infix':
-            return 'infix TODO'
+            return 'TODO: infix'
         default:
             if(obj.type !== undefined) console.log('type unhandled: ' + obj.type)
             else                       console.log('type missing: ' + obj[0])
