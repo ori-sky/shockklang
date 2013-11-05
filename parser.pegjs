@@ -32,10 +32,13 @@ primary
     / ws* "(" assignment:assignment ")" ws* { return assignment }
 
 call
-    = identifier "(" params:param* ")" { return ['call', identifier, params] }
+    = identifier:identifier "(" params:params ")" { return ['call', identifier, params] }
 
-param
-    = assignment /* TODO */
+// hacky way to prepend 'params' to the start
+params = p:params_ { return ['params'].concat(p) }
+params_
+    = first:assignment "," rest:params_ { return [first].concat(rest) }
+    / first:assignment { return [first] }
 
 identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return ['identifier', first + rest.join('')] }
