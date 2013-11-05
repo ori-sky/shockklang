@@ -1,2 +1,2 @@
 pegjs:
-	pegjs --cache --track-line-and-column parser.pegjs
+	pegjs --cache --track-line-and-column grammar.pegjs parser.js
