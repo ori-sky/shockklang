@@ -1,12 +1,20 @@
 sum = (a => o:0)
 {
-    o = o + a `` TODO: implement o += a ``
+    o = o + a
+}
+sum(5)
+
+`` TODO: don't use this when testing because it's far too messy
+   TODO: implement o += a
+sum = (a => o:0)
+{
+    o = o + a
 
     sum2 = (in  =>  out1: (3+4) * 7, out2: (blah => etc) {})
     {
         out2 = 5 + 6
     }
-}
+}``
 
 `` TODO: this should work too
 blah = 5

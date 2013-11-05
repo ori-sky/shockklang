@@ -26,8 +26,14 @@ var evaluate = function(obj)
             return obj.data
         case 'identifier':
             return state.vars[obj.data]
+        case 'function':
+            return {type:'function', ins:obj.ins, outs:obj.outs, code:obj.code}
+        case 'call':
+            return 'call TODO'
+        case 'infix':
+            return 'infix TODO'
         default:
-            if(obj.type !== undefined) console.log('type unknown: ' + obj.type)
+            if(obj.type !== undefined) console.log('type unhandled: ' + obj.type)
             else                       console.log('type missing: ' + obj[0])
             break
     }

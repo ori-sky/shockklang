@@ -11,6 +11,29 @@
         this.type = type
         this.data = data
     }
+
+    Func = function(ins, outs, code)
+    {
+        this.type = 'function'
+        this.ins = ins
+        this.outs = outs
+        this.code = code
+    }
+
+    Call = function(identifier, params)
+    {
+        this.type = 'call'
+        this.identifier = identifier
+        this.params = params
+    }
+
+    Infix = function(infix, left, right)
+    {
+        this.type = 'infix'
+        this.infix = infix
+        this.left = left
+        this.right = right
+    }
 }
 
 start
@@ -62,7 +85,7 @@ multiplicative
     / infix
 
 infix
-    = left:primary infix:identifier "!" right:infix { return ['infix', infix, left, right] }
+    = left:primary infix:identifier "!" right:infix { return new Infix(infix, left, right) }
     / primary
 
 primary
@@ -74,10 +97,10 @@ primary
     / ws* "(" assignment:assignment ")" ws* { return assignment }
 
 call
-    = identifier:identifier "(" params:params ")" ws* { return ['call', identifier].concat(params) }
+    = identifier:identifier "(" params:params ")" ws* { return new Call(identifier, params) }
 
 function
-    = ws* "(" i:params "=>" o:outputs ")" s:statement { return ['function', ['inputs'].concat(i), ['outputs'].concat(o), s] }
+    = ws* "(" i:params "=>" o:outputs ")" s:statement { return new Func(['inputs'].concat(i), ['outputs'].concat(o), s) }
 
 params
     = first:assignment "," rest:params { return [first].concat(rest) }
