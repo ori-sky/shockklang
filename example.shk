@@ -2,7 +2,7 @@ sum = (a => o:0)
 {
     o = a
 
-    sum2 = (in  =>  out1: (3+4) * 7, out2: (blah => etc:0) {})
+    sum2 = (in  =>  out1: (3+4) * 7, out2: (blah => etc) {})
     {
         out2 = 5 + 6
     }
