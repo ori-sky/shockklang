@@ -54,7 +54,17 @@ block
     = ws* "{" ws* statements:statement* ws* "}" ws* { return new Data('block', statements) }
 
 assignment
-    = left:identifier "=" right:additive { return new Op2('=', left, right) }
+    = left:identifier "=" right:logical { return new Op2('=', left, right) }
+    / left:identifier "+" ws* "=" right:logical { return new Op2('=', left, new Op2('+', left, right)) }
+    / left:identifier "-" ws* "=" right:logical { return new Op2('=', left, new Op2('-', left, right)) }
+    / left:identifier "*" ws* "=" right:logical { return new Op2('=', left, new Op2('*', left, right)) }
+    / left:identifier "/" ws* "=" right:logical { return new Op2('=', left, new Op2('/', left, right)) }
+    / left:identifier "%" ws* "=" right:logical { return new Op2('=', left, new Op2('%', left, right)) }
+    / left:identifier "<<" ws* "=" right:logical { return new Op2('=', left, new Op2('<<', left, right)) }
+    / left:identifier ">>" ws* "=" right:logical { return new Op2('=', left, new Op2('>>', left, right)) }
+    / left:identifier "&" ws* "=" right:logical { return new Op2('=', left, new Op2('&', left, right)) }
+    / left:identifier "^" ws* "=" right:logical { return new Op2('=', left, new Op2('^', left, right)) }
+    / left:identifier "|" ws* "=" right:logical { return new Op2('=', left, new Op2('|', left, right)) }
     / additive
 
 logical
@@ -64,6 +74,7 @@ logical
 
 bitwise
     = left:equalitive "|" right:bitwise { return new Op2('|', left, right) }
+    / left:equalitive "^" right:bitwise { return new Op2('^', left, right) }
     / left:equalitive "&" right:bitwise { return new Op2('&', left, right) }
     / equalitive
 
@@ -92,6 +103,7 @@ additive
 multiplicative
     = left:infix "*" right:multiplicative { return new Op2('*', left, right) }
     / left:infix "/" right:multiplicative { return new Op2('/', left, right) }
+    / left:infix "%" right:multiplicative { return new Op2('%', left, right) }
     / infix
 
 infix
