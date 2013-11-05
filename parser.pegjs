@@ -95,7 +95,7 @@ identifier
     = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
 
 string
-    = ws* "\"" chars:(!"\"" .)* "\"" ws* { return ['string', chars.map(function(v,k,a) { return v[1] }).join('')] }
+    = ws* "\"" chars:(!"\"" .)* "\"" ws* { return new Data('string', chars.map(function(v,k,a) { return v[1] }).join('')) }
 
 number
     = ws* "0b" digits:[01]+ ws*              { return new Data('number', parseInt(digits.join(''), 2)) }
