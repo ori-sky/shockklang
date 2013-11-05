@@ -9,3 +9,4 @@ string = "blah blah test"
 
 `` example infix ``
 m = 5 mod! 2
+n = 5 mod! 2 mod! 3
