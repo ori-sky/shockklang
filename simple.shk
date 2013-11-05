@@ -1,0 +1,10 @@
+sum = (a => pos:0, neg:0)
+{
+    pos = pos + a
+    neg = neg - a
+}
+
+sum(5)
+sum(5*( 2+3 ))
+sum(5,2)
+sum2(5)
