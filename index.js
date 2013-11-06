@@ -1,6 +1,6 @@
-var parser = require('./parser')
 var fs = require('fs')
 var util = require('util')
+var parser = require('./parser')
 
 var Fn = function(ins, outs, code)
 {
@@ -8,7 +8,15 @@ var Fn = function(ins, outs, code)
     this.ins = ins
     this.outs = outs
     this.code = code
-    this.toString = function() { return '[shockklang Function]' }
+    this.toString = function() { return '[shockklang Fn]' }
+}
+
+var BindingFn = function(fn)
+{
+    this.type = 'function'
+    this.fn = fn
+    this.is_binding = true
+    this.toString = function() { return '[shockklang Fn]' }
 }
 
 var state =
@@ -18,8 +26,32 @@ var state =
     // this should not be necessary...
 }
 
+var bind_function = function(fn, name)
+{
+    state.scope[0][name] = new BindingFn(fn)
+}
+
+var binding_call = function(fn, paramlist)
+{
+    if(paramlist.length < fn.length)
+        throw new Error('not enough params')
+
+    if(paramlist.length > fn.length)
+        console.log('\x1B[1m\x1B[33m-> warning <-\x1B[0m too many params, truncating')
+
+    // evaluate each param in the param list
+    var params = paramlist.map(function(v, k, a)
+    {
+        return evaluate(v)
+    }).slice(0, fn.length)
+
+    return fn.apply(state.top(), params)
+}
+
 var call = function(fn, paramlist)
 {
+    if(fn.is_binding) return binding_call(fn.fn, paramlist)
+
     if(paramlist.length < fn.ins.length)
         throw new Error('not enough params')
 
@@ -132,7 +164,11 @@ var evaluate = function(obj)
     }
 }
 
-var filename = process.argv[2] !== undefined ? process.argv[2] : 'test.shk'
+// load and bind all function bindings
+var bindings = require('./bindings')
+for(var k in bindings) bind_function(bindings[k], k)
+
+var filename = process.argv[2]
 fs.readFile(filename, function(err, data)
 {
     if(err) throw err
@@ -140,7 +176,7 @@ fs.readFile(filename, function(err, data)
     {
         parser.parse(data.toString()).forEach(function(v, k, a)
         {
-            console.log('' + evaluate(v))
+            evaluate(v)
         })
     }
     catch(e)
