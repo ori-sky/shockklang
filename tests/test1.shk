@@ -9,16 +9,3 @@ result = sum(5)
 result = sum(5 ; 3)
 result = sum(5 ; 3 ; 2)
 result = sum(5 ; 3 ; 2 ; 6)
-
-`` infix syntax ``
-result = 5 sum! 3  `` same as: result = sum(5 ; 3) ``
-result = 5 sum! 3 sum! 2
-result = 5 sum! 3 sum! 2 sum! 6
-
-result = 5
-
-`` shorthand infix syntax ``
-`` same as: result = result sum! 3 ``
-``result sum!= 3
-result sum!= 2
-result sum!= 6``

@@ -1,0 +1,9 @@
+makevector = (in1, in2  =>  x:0, y:0)
+{
+    x += in1
+    y += in2
+}
+
+makevector(2,3)
+makevector(2,3 ; 5,5)
+makevector(2,3 ; 5,5 ; 1,1,1)
