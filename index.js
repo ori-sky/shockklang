@@ -6,6 +6,7 @@ var state =
 {
     scope: [{}],
     top: function() { return this.scope[this.scope.length - 1] }
+    // this should not be necessary...
 }
 
 var call = function(fn, paramlist)
@@ -34,7 +35,9 @@ var call = function(fn, paramlist)
     // set initial values of outputs
     for(var k in fn.outs)
     {
-        scope[fn.outs[k].identifier.data] = evaluate(fn.outs[k].initial)
+        fn.last_outputs === undefined
+        ? scope[fn.outs[k].identifier.data] = evaluate(fn.outs[k].initial)
+        : scope[fn.outs[k].identifier.data] = fn.last_outputs[fn.outs[k].identifier.data]
     }
 
     state.scope.push(scope)
@@ -46,8 +49,10 @@ var call = function(fn, paramlist)
     })
 
     // get outputs from function scope
+    fn.last_outputs = {}
     var outputs = fn.outs.map(function(v, k, a)
     {
+        fn.last_outputs[v.identifier.data] = state.top()[v.identifier.data]
         return state.top()[v.identifier.data]
     })
 
@@ -104,6 +109,9 @@ var evaluate = function(obj)
             {
                 result = call(fn, v)
             })
+            fn.last_outputs = undefined
+            delete fn.last_outputs
+
             return result
         // TODO: implement scope for blocks too
         case 'infix':
