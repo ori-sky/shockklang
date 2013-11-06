@@ -22,8 +22,20 @@ var BindingFn = function(fn)
 var state =
 {
     scope: [{}],
-    top: function() { return this.scope[this.scope.length - 1] }
-    // this should not be necessary...
+
+    top: function()
+    {
+        return this.scope[this.scope.length - 1]
+    },
+
+    get: function(name)
+    {
+        for(var i=this.scope.length-1; i>0; --i)
+        {
+            if(this.scope[i][name] !== undefined) return this.scope[i][name]
+        }
+        return this.scope[0][name]
+    }
 }
 
 var bind_function = function(fn, name)
@@ -94,8 +106,8 @@ var call = function(fn, paramlist)
     fn.last_outputs = {}
     var outputs = fn.outs.map(function(v, k, a)
     {
-        fn.last_outputs[v.identifier.data] = state.top()[v.identifier.data]
-        return state.top()[v.identifier.data]
+        fn.last_outputs[v.identifier.data] = state.get(v.identifier.data)
+        return state.get(v.identifier.data)
     })
 
     state.scope.pop()
@@ -139,11 +151,11 @@ var evaluate = function(obj)
         case 'string':
             return obj.data
         case 'identifier':
-            return state.top()[obj.data]
+            return state.get(obj.data)
         case 'function':
             return new Fn(obj.ins, obj.outs, obj.code)
         case 'call':
-            var fn = state.top()[obj.identifier.data]
+            var fn = state.get(obj.identifier.data)
 
             if(fn === undefined)
                 throw new Error('identifier `' + obj.identifier.data + '` is undefined')
