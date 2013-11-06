@@ -2,6 +2,15 @@ var parser = require('./parser')
 var fs = require('fs')
 var util = require('util')
 
+var Fn = function(ins, outs, code)
+{
+    this.type = 'function'
+    this.ins = ins
+    this.outs = outs
+    this.code = code
+    this.toString = function() { return '[shockklang Function]' }
+}
+
 var state =
 {
     scope: [{}],
@@ -94,7 +103,7 @@ var evaluate = function(obj)
         case 'identifier':
             return state.top()[obj.data]
         case 'function':
-            return {type:'function', ins:obj.ins, outs:obj.outs, code:obj.code}
+            return new Fn(obj.ins, obj.outs, obj.code)
         case 'call':
             var fn = state.top()[obj.identifier.data]
 
@@ -115,7 +124,7 @@ var evaluate = function(obj)
             return result
         // TODO: implement scope for blocks too
         case 'infix':
-            return 'TODO: infix'
+            throw new Error('infix not implemented')
         default:
             if(obj.type !== undefined) console.log('type unhandled: ' + obj.type)
             else                       console.log('type missing: ' + obj[0])
