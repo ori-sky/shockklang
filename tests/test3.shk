@@ -1,0 +1,2 @@
+sum = (in  =>  out:0) out+=in
+sum(5 ; sum(3 ; 2) ; 6)
