@@ -132,10 +132,12 @@ paramlists
 paramlist
     = first:assignment "," rest:paramlist { return [first].concat(rest) }
     / first:assignment { return [first] }
+    / ws*
 
 outputs
     = first:output "," rest:outputs { return [first].concat(rest) }
     / first:output { return [first] }
+    / ws* { return [] }
 
 output
     = identifier:identifier ws* ":" ws* initial:assignment { return new Output(identifier, initial) }
