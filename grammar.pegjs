@@ -123,6 +123,7 @@ call
 
 function
     = ws* "(" i:paramlist "=>" o:outputs ")" code:block { return new Func(i, o, code.data) }
+    / ws* "(" i:paramlist "=>" o:outputs ")" code:statement { return new Func(i, o, [code]) }
 
 paramlists
     = first:paramlist ";" rest:paramlists { return [first].concat(rest) }
