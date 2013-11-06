@@ -132,7 +132,7 @@ paramlists
 paramlist
     = first:assignment "," rest:paramlist { return [first].concat(rest) }
     / first:assignment { return [first] }
-    / ws*
+    / ws* { return [] }
 
 outputs
     = first:output "," rest:outputs { return [first].concat(rest) }

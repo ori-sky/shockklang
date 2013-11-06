@@ -159,7 +159,7 @@ var evaluate = function(obj)
             fn.last_outputs = undefined
             delete fn.last_outputs
 
-            return result
+            return result !== undefined ? result : '[shockklang Undefined]'
         // TODO: implement scope for blocks too
         case 'infix':
             throw new Error('infix not implemented')
