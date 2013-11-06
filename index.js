@@ -38,13 +38,13 @@ var evaluate = function(obj)
         case 'function':
             return {type:'function', ins:obj.ins, outs:obj.outs, code:obj.code}
         case 'call':
-            var fn = state.top()[obj.identifier]
+            var fn = state.top()[obj.identifier.data]
 
             if(fn === undefined)
-                throw new Error('identifier `' + obj.identifier + '` is undefined')
+                throw new Error('identifier `' + obj.identifier.data + '` is undefined')
 
             if(fn.type !== 'function')
-                throw new Error('identifier `' + obj.identifier + '` is not a function')
+                throw new Error('identifier `' + obj.identifier.data + '` is not a function')
 
             if(obj.params.length < fn.ins.length)
                 throw new Error('not enough params')

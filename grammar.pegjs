@@ -30,7 +30,7 @@
     Call = function(identifier, params)
     {
         this.type = 'call'
-        this.identifier = identifier.data
+        this.identifier = identifier
         this.params = params
     }
 
