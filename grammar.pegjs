@@ -27,11 +27,11 @@
         this.code = code
     }
 
-    Call = function(identifier, params)
+    Call = function(identifier, paramlists)
     {
         this.type = 'call'
         this.identifier = identifier
-        this.params = params
+        this.paramlists = paramlists
     }
 
     Infix = function(infix, left, right)
@@ -119,13 +119,17 @@ primary
     / ws* "(" assignment:assignment ")" ws* { return assignment }
 
 call
-    = identifier:identifier "(" params:params ")" ws* { return new Call(identifier, params) }
+    = identifier:identifier "(" paramlists:paramlists ")" ws* { return new Call(identifier, paramlists) }
 
 function
-    = ws* "(" i:params "=>" o:outputs ")" code:block { return new Func(i, o, code.data) }
+    = ws* "(" i:paramlist "=>" o:outputs ")" code:block { return new Func(i, o, code.data) }
 
-params
-    = first:assignment "," rest:params { return [first].concat(rest) }
+paramlists
+    = first:paramlist ";" rest:paramlists { return [first].concat(rest) }
+    / first:paramlist { return [first] }
+
+paramlist
+    = first:assignment "," rest:paramlist { return [first].concat(rest) }
     / first:assignment { return [first] }
 
 outputs

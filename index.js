@@ -8,6 +8,59 @@ var state =
     top: function() { return this.scope[this.scope.length - 1] }
 }
 
+var call = function(fn, paramlist)
+{
+    if(paramlist.length < fn.ins.length)
+        throw new Error('not enough params')
+
+    if(paramlist.length > fn.ins.length)
+        console.log('\x1B[1m\x1B[33m-> warning <-\x1B[0m too many params, truncating')
+
+    // evaluate each param in the param list
+    var params = paramlist.map(function(v, k, a)
+    {
+        return evaluate(v)
+    }).slice(0, fn.ins.length)
+
+    var scope = {}
+
+    // put inputs into function scope
+    var i = 0
+    for(var k in fn.ins)
+    {
+        scope[fn.ins[k].data] = params[i++]
+    }
+
+    // set initial values of outputs
+    for(var k in fn.outs)
+    {
+        scope[fn.outs[k].identifier.data] = evaluate(fn.outs[k].initial)
+    }
+
+    state.scope.push(scope)
+
+    // evaluate each statement in function code
+    fn.code.forEach(function(v, k, a)
+    {
+        evaluate(v)
+    })
+
+    // get outputs from function scope
+    var outputs = fn.outs.map(function(v, k, a)
+    {
+        return state.top()[v.identifier.data]
+    })
+
+    state.scope.pop()
+
+    switch(outputs.length)
+    {
+        case 0: return undefined
+        case 1: return outputs[0]
+        default: return outputs
+    }
+}
+
 var evaluate = function(obj)
 {
     if(typeof obj !== 'object') return ' ' + obj.toString()
@@ -46,54 +99,12 @@ var evaluate = function(obj)
             if(fn.type !== 'function')
                 throw new Error('identifier `' + obj.identifier.data + '` is not a function')
 
-            if(obj.params.length < fn.ins.length)
-                throw new Error('not enough params')
-
-            if(obj.params.length > fn.ins.length)
-                console.log('\x1B[1m\x1B[33m-> warning <-\x1B[0m too many params, truncating')
-
-            var params = obj.params.map(function(v, k, a)
+            var result
+            obj.paramlists.forEach(function(v, k, a)
             {
-                return evaluate(v)
-            }).slice(0, fn.ins.length)
-
-            var scope = {}
-
-            // put inputs into function scope
-            var i = 0
-            for(var k in fn.ins)
-            {
-                scope[fn.ins[k].data] = params[i++]
-            }
-
-            // set initial values of outputs
-            for(var k in fn.outs)
-            {
-                scope[fn.outs[k].identifier.data] = evaluate(fn.outs[k].initial)
-            }
-
-            state.scope.push(scope)
-
-            // evaluate each statement in function code
-            fn.code.forEach(function(v, k, a)
-            {
-                evaluate(v)
+                result = call(fn, v)
             })
-
-            // get outputs from function scope
-            var outputs = fn.outs.map(function(v, k, a)
-            {
-                return state.top()[v.identifier.data]
-            })
-
-            state.scope.pop()
-
-            switch(outputs.length)
-            {
-                case 0: return undefined
-                case 1: return outputs[0]
-                default: return outputs
-            }
+            return result
         // TODO: implement scope for blocks too
         case 'infix':
             return 'TODO: infix'
