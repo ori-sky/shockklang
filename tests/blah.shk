@@ -1,0 +1,12 @@
+f = (x => y:0) {
+  z = 10
+  print("z: " + z)
+}
+
+g = (=>) { }
+
+print(g())
+print(f(0))
+print("x: " + x)
+print("y: " + y)
+print("z2: " + z)
