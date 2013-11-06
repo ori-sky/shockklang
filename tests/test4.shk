@@ -3,3 +3,4 @@ sum = (in  =>  out:0) out+=in
 print(5 + 6)
 print(sum)
 print(print)
+print(print(print))

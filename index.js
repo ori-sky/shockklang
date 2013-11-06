@@ -45,7 +45,8 @@ var binding_call = function(fn, paramlist)
         return evaluate(v)
     }).slice(0, fn.length)
 
-    return fn.apply(state.top(), params)
+    var result = fn.apply(state.top(), params)
+    return result !== undefined ? result : '[shockklang Undefined]'
 }
 
 var call = function(fn, paramlist)
@@ -109,7 +110,12 @@ var call = function(fn, paramlist)
 
 var evaluate = function(obj)
 {
-    if(typeof obj !== 'object') return ' ' + obj.toString()
+    switch(typeof obj)
+    {
+        case 'object': break
+        case 'undefined': return '[shockklang Undefined]'
+        default: return obj.toString()
+    }
 
     switch(obj.type)
     {
