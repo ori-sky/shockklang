@@ -23,6 +23,15 @@ module.exports.print = function($, obj)
     console.log(obj.toString())
 }
 
+module.exports.string_get_word = function($, str, i)
+{
+    if(typeof str !== 'string') throw new Error('string_split(1): expected string')
+    if(typeof i !== 'number') throw new Error('string_split(2): expected number')
+
+    var words = str.split(' ')
+    return words[i]
+}
+
 var SLSocket = function(socket)
 {
     this.type = 'object'
