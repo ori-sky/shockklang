@@ -161,6 +161,7 @@ primary
     / string
     / number
     / ws* "(" assignment:assignment ")" ws* { return assignment }
+    / ws* "(" conditional:conditional ")" ws* { return conditional }
 
 call
     = identifier:identifier "(" paramlists:paramlists ")" ws* { return new Call(identifier, paramlists) }
