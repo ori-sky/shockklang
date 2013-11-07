@@ -87,6 +87,8 @@ conditional
 if
     = condition:assignment "?" code:block { return new If(condition, code.data) }
     / condition:assignment "?" code:statement { return new If(condition, [code]) }
+    / ws* "??" code:block { return new If(undefined, code.data) }
+    / ws* "??" code:statement { return new If(undefined, [code]) }
 
 elseif
     = condition:assignment? "?!" code:block { return new If(condition, code.data) }
