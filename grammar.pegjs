@@ -34,6 +34,13 @@
         this.paramlists = paramlists
     }
 
+    AnonCall = function(fn, paramlists)
+    {
+        this.type = 'anoncall'
+        this.fn = fn
+        this.paramlists = paramlists
+    }
+
     Infix = function(infix, left, right)
     {
         this.type = 'infix'
@@ -120,6 +127,7 @@ primary
 
 call
     = identifier:identifier "(" paramlists:paramlists ")" ws* { return new Call(identifier, paramlists) }
+    / fn:function "(" paramlists:paramlists ")" ws* { return new AnonCall(fn, paramlists) }
 
 function
     = ws* "(" i:paramlist "=>" o:outputs ")" code:block { return new Func(i, o, code.data) }
