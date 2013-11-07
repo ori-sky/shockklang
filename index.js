@@ -117,10 +117,16 @@ state.call = function(fn, paramlist)
     state.scope.push(scope)
 
     // evaluate each statement in function code
-    fn.code.forEach(function(v, k, a)
+    for(var i=0; i<fn.code.length; ++i)
     {
-        state.evaluate(v)
-    })
+        state.evaluate(fn.code[i])
+
+        if(state.function_ahead === true)
+        {
+            state.function_ahead = false
+            break
+        }
+    }
 
     // get outputs from function scope
     fn.last_outputs = {}
@@ -214,6 +220,9 @@ state.evaluate = function(obj)
             delete fn.last_outputs
 
             return result !== undefined ? result : '[shockklang undefined]'
+        case 'function_ahead':
+            state.function_ahead = true
+            return
         case 'infix':
             throw new Error('infix not implemented')
         default:
