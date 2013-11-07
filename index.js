@@ -45,6 +45,15 @@ state.top = function()
     return this.scope[this.scope.length - 1]
 }
 
+state.set = function(name, value)
+{
+    for(var i=this.scope.length-1; i>=0; --i)
+    {
+        if(this.scope[i][name] !== undefined) return (this.scope[i][name] = value)
+    }
+    return (this.top()[name] = value)
+}
+
 state.get = function(name)
 {
     for(var i=this.scope.length-1; i>0; --i)
@@ -158,7 +167,7 @@ state.evaluate = function(obj)
     switch(obj.type)
     {
         case '=':
-            return (state.top()[obj.left.data] = state.evaluate(obj.right))
+            return state.set(obj.left.data, state.evaluate(obj.right))
         case '+':
             return state.evaluate(obj.left) + state.evaluate(obj.right)
         case '-':
