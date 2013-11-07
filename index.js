@@ -159,7 +159,9 @@ state.evaluate = function(obj)
         case 'function':
             return new Fn(obj.ins, obj.outs, obj.code)
         case 'call':
-            var fn = state.get(obj.identifier.data)
+        case 'anoncall':
+            if(obj.type === 'call') var fn = state.get(obj.identifier.data)
+            else var fn = obj.fn
 
             if(fn === undefined)
                 throw new Error('identifier `' + obj.identifier.data + '` is undefined')
@@ -176,13 +178,13 @@ state.evaluate = function(obj)
             delete fn.last_outputs
 
             return result !== undefined ? result : '[shockklang undefined]'
-        // TODO: implement scope for blocks too
         case 'infix':
             throw new Error('infix not implemented')
         default:
             if(obj.type !== undefined) console.log('type unhandled: ' + obj.type)
             else                       console.log('type missing: ' + util.inspect(obj[0]))
             break
+        // TODO: implement scope for blocks too
     }
 }
 
