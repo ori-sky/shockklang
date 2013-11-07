@@ -77,7 +77,8 @@ start
     = statement*
 
 statement
-    = conditional
+    = "-->" { return new Data('function_ahead') }
+    / conditional
     / assignment
     / block
 
