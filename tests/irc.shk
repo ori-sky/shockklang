@@ -13,6 +13,8 @@ sock = socket_connect(6667, "irc.freenode.net", (=>)
 socket_on_data(sock, (data =>)
 {
     print("data received: " + data)
+
+    string_get_word(data, 0) == "PING"? socket_send(sock, "PONG " + string_get_word(data, 1))
 })
 
 print(sock)
