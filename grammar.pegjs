@@ -43,6 +43,13 @@
         this.code = code
     }
 
+    If = function(condition, code)
+    {
+        this.type = 'if'
+        this.condition = condition
+        this.code = code
+    }
+
     Call = function(identifier, paramlists)
     {
         this.type = 'call'
@@ -70,8 +77,20 @@ start
     = statement*
 
 statement
-    = assignment
+    = conditional
+    / assignment
     / block
+
+conditional
+    = i:if elseifs:elseif* { return new Data('conditional', [i].concat(elseifs)) }
+
+if
+    = condition:assignment "?" code:block { return new If(condition, code.data) }
+    / condition:assignment "?" code:statement { return new If(condition, [code]) }
+
+elseif
+    = condition:assignment? "?!" code:block { return new If(condition, code.data) }
+    / condition:assignment? "?!" code:statement { return new If(condition, [code]) }
 
 block
     = ws* "{" ws* statements:statement* ws* "}" ws* { return new Data('block', statements) }
