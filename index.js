@@ -167,6 +167,8 @@ state.evaluate = function(obj)
             return state.evaluate(obj.left) << state.evaluate(obj.right)
         case '>>':
             return state.evaluate(obj.left) >> state.evaluate(obj.right)
+        case '==':
+            return state.evaluate(obj.left) == state.evaluate(obj.right)
         case 'number':
         case 'string':
             return obj.data
