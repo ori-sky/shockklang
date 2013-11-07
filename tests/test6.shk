@@ -1,0 +1,13 @@
+a = 205
+
+print("(a == 5): " + (a == 5))
+
+?? print("always")
+
+a == 5?  print("a equals 5")
+      ?! print("a does not equal 5")
+
+a == 6?  print("a equals 6")
+a == 5?! print("a equals 5")
+a == 4?! print("a equals 4")
+      ?! print("a does not equal any of them")
