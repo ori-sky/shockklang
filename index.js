@@ -22,48 +22,52 @@ var BindingFn = function(fn)
 var state =
 {
     scope: [{}],
-
-    top: function()
-    {
-        return this.scope[this.scope.length - 1]
-    },
-
-    get: function(name)
-    {
-        for(var i=this.scope.length-1; i>0; --i)
-        {
-            if(this.scope[i][name] !== undefined) return this.scope[i][name]
-        }
-        return this.scope[0][name]
-    }
 }
 
-var bind_function = function(fn, name)
+state.top = function()
+{
+    return this.scope[this.scope.length - 1]
+}
+
+state.get = function(name)
+{
+    for(var i=this.scope.length-1; i>0; --i)
+    {
+        if(this.scope[i][name] !== undefined) return this.scope[i][name]
+    }
+    return this.scope[0][name]
+}
+
+state.bind_function = function(fn, name)
 {
     state.scope[0][name] = new BindingFn(fn)
 }
 
-var binding_call = function(fn, paramlist)
+state.binding_call = function(fn, paramlist)
 {
-    if(paramlist.length < fn.length)
+    if(paramlist === undefined) paramlist = []
+
+    if(paramlist.length < fn.length - 1)
         throw new Error('not enough params')
 
-    if(paramlist.length > fn.length)
+    if(paramlist.length > fn.length - 1)
         console.log('\x1B[1m\x1B[33m-> warning <-\x1B[0m too many params, truncating')
 
     // evaluate each param in the param list
     var params = paramlist.map(function(v, k, a)
     {
-        return evaluate(v)
-    }).slice(0, fn.length)
+        return state.evaluate(v)
+    }).slice(0, fn.length - 1)
 
-    var result = fn.apply(state.top(), params)
-    return result !== undefined ? result : '[shockklang Undefined]'
+    var result = fn.apply(state.top(), [state].concat(params))
+    return result !== undefined ? result : '[shockklang undefined]'
 }
 
-var call = function(fn, paramlist)
+state.call = function(fn, paramlist)
 {
-    if(fn.is_binding) return binding_call(fn.fn, paramlist)
+    if(fn.is_binding) return state.binding_call(fn.fn, paramlist)
+
+    if(paramlist === undefined) paramlist = []
 
     if(paramlist.length < fn.ins.length)
         throw new Error('not enough params')
@@ -74,7 +78,7 @@ var call = function(fn, paramlist)
     // evaluate each param in the param list
     var params = paramlist.map(function(v, k, a)
     {
-        return evaluate(v)
+        return state.evaluate(v)
     }).slice(0, fn.ins.length)
 
     var scope = {}
@@ -90,7 +94,7 @@ var call = function(fn, paramlist)
     for(var k in fn.outs)
     {
         fn.last_outputs === undefined
-        ? scope[fn.outs[k].identifier.data] = evaluate(fn.outs[k].initial)
+        ? scope[fn.outs[k].identifier.data] = state.evaluate(fn.outs[k].initial)
         : scope[fn.outs[k].identifier.data] = fn.last_outputs[fn.outs[k].identifier.data]
     }
 
@@ -99,7 +103,7 @@ var call = function(fn, paramlist)
     // evaluate each statement in function code
     fn.code.forEach(function(v, k, a)
     {
-        evaluate(v)
+        state.evaluate(v)
     })
 
     // get outputs from function scope
@@ -120,33 +124,33 @@ var call = function(fn, paramlist)
     }
 }
 
-var evaluate = function(obj)
+state.evaluate = function(obj)
 {
     switch(typeof obj)
     {
         case 'object': break
-        case 'undefined': return '[shockklang Undefined]'
+        case 'undefined': return '[shockklang undefined]'
         default: return obj.toString()
     }
 
     switch(obj.type)
     {
         case '=':
-            return (state.top()[obj.left.data] = evaluate(obj.right))
+            return (state.top()[obj.left.data] = state.evaluate(obj.right))
         case '+':
-            return evaluate(obj.left) + evaluate(obj.right)
+            return state.evaluate(obj.left) + state.evaluate(obj.right)
         case '-':
-            return evaluate(obj.left) - evaluate(obj.right)
+            return state.evaluate(obj.left) - state.evaluate(obj.right)
         case '*':
-            return evaluate(obj.left) * evaluate(obj.right)
+            return state.evaluate(obj.left) * state.evaluate(obj.right)
         case '&':
-            return evaluate(obj.left) & evaluate(obj.right)
+            return state.evaluate(obj.left) & state.evaluate(obj.right)
         case '|':
-            return evaluate(obj.left) | evaluate(obj.right)
+            return state.evaluate(obj.left) | state.evaluate(obj.right)
         case '<<':
-            return evaluate(obj.left) << evaluate(obj.right)
+            return state.evaluate(obj.left) << state.evaluate(obj.right)
         case '>>':
-            return evaluate(obj.left) >> evaluate(obj.right)
+            return state.evaluate(obj.left) >> state.evaluate(obj.right)
         case 'number':
         case 'string':
             return obj.data
@@ -166,25 +170,25 @@ var evaluate = function(obj)
             var result
             obj.paramlists.forEach(function(v, k, a)
             {
-                result = call(fn, v)
+                result = state.call(fn, v)
             })
             fn.last_outputs = undefined
             delete fn.last_outputs
 
-            return result !== undefined ? result : '[shockklang Undefined]'
+            return result !== undefined ? result : '[shockklang undefined]'
         // TODO: implement scope for blocks too
         case 'infix':
             throw new Error('infix not implemented')
         default:
             if(obj.type !== undefined) console.log('type unhandled: ' + obj.type)
-            else                       console.log('type missing: ' + obj[0])
+            else                       console.log('type missing: ' + util.inspect(obj[0]))
             break
     }
 }
 
 // load and bind all function bindings
 var bindings = require('./bindings')
-for(var k in bindings) bind_function(bindings[k], k)
+for(var k in bindings) state.bind_function(bindings[k], k)
 
 var filename = process.argv[2]
 fs.readFile(filename, function(err, data)
@@ -194,7 +198,7 @@ fs.readFile(filename, function(err, data)
     {
         parser.parse(data.toString()).forEach(function(v, k, a)
         {
-            evaluate(v)
+            state.evaluate(v)
         })
     }
     catch(e)
