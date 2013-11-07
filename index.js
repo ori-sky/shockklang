@@ -174,6 +174,24 @@ state.evaluate = function(obj)
             return obj.data
         case 'identifier':
             return state.get(obj.data)
+        case 'conditional':
+            for(var i=0; i<obj.data.length; ++i)
+            {
+                var condition = obj.data[i].condition === undefined
+                              ? true
+                              : state.evaluate(obj.data[i].condition)
+
+                if(condition !== undefined && condition !== null && condition !== 0 && condition !== false)
+                {
+                    var result
+                    obj.data[i].code.forEach(function(v, k, a)
+                    {
+                        result = state.evaluate(v)
+                    })
+                    return result
+                }
+            }
+            return undefined
         case 'function':
             return new Fn(obj.ins, obj.outs, obj.code)
         case 'call':
