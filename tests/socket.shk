@@ -1,6 +1,13 @@
+irc_nick = "shockklang"
+irc_ident = "shockklang"
+irc_realname = "Shockklang Bot"
+
 sock = socket_connect(6667, "irc.freenode.net", (=>)
 {
     print("connected")
+    socket_send(sock, "NICK " + irc_nick + "\r\n")
+    socket_send(sock, "USER " + irc_ident + " 0 * :" + irc_realname + "\r\n")
+    socket_send(sock, "JOIN #darkf\r\n")
 })
 
 socket_on_data(sock, (data =>)
