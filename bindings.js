@@ -27,6 +27,13 @@ module.exports.socket_connect = function($, port, host, callback)
     return new SLSocket(socket)
 }
 
+module.exports.socket_send = function($, socket, data)
+{
+    if(socket === undefined || socket.objtype !== 'SLSocket') throw new Error('socket_on_data: expected SLSocket')
+
+    socket.socket.write(data)
+}
+
 module.exports.socket_on_data = function($, socket, callback)
 {
     if(socket === undefined || socket.objtype !== 'SLSocket') throw new Error('socket_on_data: expected SLSocket')
