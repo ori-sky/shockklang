@@ -1,0 +1,11 @@
+sock = socket_connect(6667, "irc.freenode.net", (=>)
+{
+    print("connected")
+})
+
+socket_on_data(sock, (data =>)
+{
+    print("data received: " + data)
+})
+
+print(sock)
