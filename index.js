@@ -45,15 +45,6 @@ state.top = function()
     return this.scope[this.scope.length - 1]
 }
 
-state.set = function(name, value)
-{
-    for(var i=this.scope.length-1; i>=0; --i)
-    {
-        if(this.scope[i][name] !== undefined) return (this.scope[i][name] = value)
-    }
-    return (this.top()[name] = value)
-}
-
 state.get = function(name)
 {
     for(var i=this.scope.length-1; i>0; --i)
@@ -61,6 +52,15 @@ state.get = function(name)
         if(this.scope[i][name] !== undefined) return this.scope[i][name]
     }
     return this.scope[0][name]
+}
+
+state.find = function(name)
+{
+    for(var i=this.scope.length-1; i>0; --i)
+    {
+        if(this.scope[i][name] !== undefined) return this.scope[i]
+    }
+    return this.top()
 }
 
 state.bind_function = function(fn, name)
@@ -155,6 +155,30 @@ state.call = function(fn, paramlist)
     }
 }
 
+state.set = function(name, value)
+{
+    if(name === undefined) return ']shockklang undefined]'
+
+    switch(name.type)
+    {
+        case 'identifier':
+            return (state.find()[name.data] = value)
+        case 'array_access':
+            var arr = state.get(name.primary.data)
+            var index = state.evaluate(name.expr)
+
+            if(index === '')
+            {
+                arr.data.push(value)
+                index = arr.data.length - 1
+            }
+            else arr.data[index] = value
+
+            return (state.find(name.primary.data)[name.primary.data][index] = value)
+        default: console.log('array access type unhandled: ' + name.type)
+    }
+}
+
 state.evaluate = function(obj)
 {
     switch(typeof obj)
@@ -167,7 +191,7 @@ state.evaluate = function(obj)
     switch(obj.type)
     {
         case '=':
-            return state.set(obj.left.data, state.evaluate(obj.right))
+            return state.set(obj.left, state.evaluate(obj.right))
         case '+':
             return state.evaluate(obj.left) + state.evaluate(obj.right)
         case '-':
@@ -189,6 +213,21 @@ state.evaluate = function(obj)
             return obj.data
         case 'identifier':
             return state.get(obj.data)
+        case 'array':
+            return {type: 'array', data: obj.data.map(state.evaluate),
+                    toString: function() { return '[' + this.data.join(', ') + ']' }
+            }
+        case 'array_access':
+            /*if(obj.expr === '')
+            {
+                var arr = state.get(obj.primary.data)
+                arr.data.push(0)
+                return arr.data[arr.data.length - 1]
+            }
+            else*/
+            {
+                return state.get(obj.primary.data).data[state.evaluate(obj.expr)]
+            }
         case 'conditional':
             for(var i=0; i<obj.data.length; ++i)
             {
@@ -259,7 +298,6 @@ fs.readFile(filename, function(err, data)
     }
     catch(e)
     {
-        console.log(e)
-        return
+        throw e
     }
 })
