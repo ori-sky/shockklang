@@ -28,6 +28,13 @@
         this.data = data
     }
 
+    ArrayAccess = function(primary, expr)
+    {
+        this.type = 'array_access'
+        this.primary = primary
+        this.expr = expr
+    }
+
     Output = function(identifier, initial)
     {
         this.type = 'output'
@@ -158,11 +165,26 @@ infix
 primary
     = call
     / function
+    / array
     / identifier
     / string
     / number
     / ws* "(" assignment:assignment ")" ws* { return assignment }
     / ws* "(" conditional:conditional ")" ws* { return conditional }
+
+/*array_access
+    = primary:array_accessible "[" expr:assignment? "]" ws* { return new ArrayAccess(primary, expr) }
+
+array_accessible
+    = call
+    / array
+    / identifier
+    / string
+    / ws* "(" conditional:conditional ")" ws* { return conditional }
+*/
+
+array
+    = ws* "[" paramlist:paramlist "]" ws* { return new Data('array', paramlist) }
 
 call
     = identifier:identifier "(" paramlists:paramlists ")" ws* { return new Call(identifier, paramlists) }
@@ -191,7 +213,8 @@ output
     / identifier:identifier ws* { return new Output(identifier) }
 
 identifier
-    = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
+    = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* "[" expr:assignment? "]" ws* { return new ArrayAccess(new Data('identifier', first + rest.join('')), expr) }
+    / ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
 
 string "string"
     = ws* "\"" chars:string_character* "\"" ws* { return new Data('string', chars.join('')) }
