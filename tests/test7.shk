@@ -1,0 +1,16 @@
+one = []
+one[] = 5
+one[] = 7
+one[] = "blah"
+one[] = (=>){}
+one[0] = 4
+one[1] = 6
+one[2] += "blah"
+
+two = [6,  8, "asdf", (=>){}]
+
+position = [3, 2]
+
+print("one: " + one)
+print("two: " + two)
+print(position)
