@@ -157,25 +157,21 @@ state.call = function(fn, paramlist)
 
 state.set = function(name, value)
 {
-    if(name === undefined) return ']shockklang undefined]'
+    if(name === undefined) return '[shockklang undefined]'
 
     switch(name.type)
     {
         case 'identifier':
             return (state.find()[name.data] = value)
-        case 'array_access':
-            var arr = state.get(name.primary.data)
-            var index = state.evaluate(name.expr)
+        case 'PropertyAccess':
+            var arr = state.evaluate(name.base)
+            var index = state.evaluate(name.name)
 
-            if(index === '')
-            {
-                arr.data.push(value)
-                index = arr.data.length - 1
-            }
+            if(index === '') arr.data.push(value)
             else arr.data[index] = value
 
-            return (state.find(name.primary.data)[name.primary.data][index] = value)
-        default: console.log('array access type unhandled: ' + name.type)
+            return value
+        default: console.log('assignable type unhandled: ' + name.type)
     }
 }
 
@@ -217,17 +213,12 @@ state.evaluate = function(obj)
             return {type: 'array', data: obj.data.map(state.evaluate),
                     toString: function() { return '[' + this.data.join(', ') + ']' }
             }
-        case 'array_access':
-            /*if(obj.expr === '')
-            {
-                var arr = state.get(obj.primary.data)
-                arr.data.push(0)
-                return arr.data[arr.data.length - 1]
-            }
-            else*/
-            {
-                return state.get(obj.primary.data).data[state.evaluate(obj.expr)]
-            }
+        case 'PropertyAccess':
+            var arr = state.evaluate(obj.base)
+            var index = state.evaluate(obj.name)
+
+            if(index === '') return arr.data[arr.data.length - 1]
+            else return arr.data[index]
         case 'conditional':
             for(var i=0; i<obj.data.length; ++i)
             {
