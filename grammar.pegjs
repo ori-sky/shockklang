@@ -110,7 +110,6 @@ assignment
     / left:LeftExpression "&" ws* "=" right:logical { return new Op2('=', left, new Op2('&', left, right)) }
     / left:LeftExpression "^" ws* "=" right:logical { return new Op2('=', left, new Op2('^', left, right)) }
     / left:LeftExpression "|" ws* "=" right:logical { return new Op2('=', left, new Op2('|', left, right)) }
-    / LeftExpression
     / logical
 
 LeftExpression
@@ -173,8 +172,8 @@ multiplicative
     / infix
 
 infix
-    = left:primary infix:identifier "!" right:infix { return new Infix(infix, left, right) }
-    / primary
+    = left:LeftExpression infix:identifier "!" right:infix { return new Infix(infix, left, right) }
+    / LeftExpression
 
 primary
     = call
