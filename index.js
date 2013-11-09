@@ -217,8 +217,10 @@ state.evaluate = function(obj)
             var arr = state.evaluate(obj.base)
             var index = state.evaluate(obj.name)
 
-            if(index === '') return arr.data[arr.data.length - 1]
-            else return arr.data[index]
+            if(index === '') var ret = arr.data[arr.data.length - 1]
+            else var ret = arr.data[index]
+
+            return ret !== undefined ? ret : '[shockklang undefined]'
         case 'conditional':
             for(var i=0; i<obj.data.length; ++i)
             {
