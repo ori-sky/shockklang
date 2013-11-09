@@ -28,13 +28,6 @@
         this.data = data
     }
 
-    ArrayAccess = function(primary, expr)
-    {
-        this.type = 'array_access'
-        this.primary = primary
-        this.expr = expr
-    }
-
     Output = function(identifier, initial)
     {
         this.type = 'output'
@@ -106,19 +99,39 @@ block
     = ws* "{" ws* statements:statement* ws* "}" ws* { return new Data('block', statements) }
 
 assignment
-    = left:identifier "=" !"=" right:logical { return new Op2('=', left, right) }
-    / left:identifier "+" ws* "=" right:logical { return new Op2('=', left, new Op2('+', left, right)) }
-    / left:identifier "-" ws* "=" right:logical { return new Op2('=', left, new Op2('-', left, right)) }
-    / left:identifier "*" ws* "=" right:logical { return new Op2('=', left, new Op2('*', left, right)) }
-    / left:identifier "/" ws* "=" right:logical { return new Op2('=', left, new Op2('/', left, right)) }
-    / left:identifier "%" ws* "=" right:logical { return new Op2('=', left, new Op2('%', left, right)) }
-    / left:identifier "<<" ws* "=" right:logical { return new Op2('=', left, new Op2('<<', left, right)) }
-    / left:identifier ">>" ws* "=" right:logical { return new Op2('=', left, new Op2('>>', left, right)) }
-    / left:identifier "&" ws* "=" right:logical { return new Op2('=', left, new Op2('&', left, right)) }
-    / left:identifier "^" ws* "=" right:logical { return new Op2('=', left, new Op2('^', left, right)) }
-    / left:identifier "|" ws* "=" right:logical { return new Op2('=', left, new Op2('|', left, right)) }
+    = left:LeftExpression "=" !"=" right:logical { return new Op2('=', left, right) }
+    / left:LeftExpression "+" ws* "=" right:logical { return new Op2('=', left, new Op2('+', left, right)) }
+    / left:LeftExpression "-" ws* "=" right:logical { return new Op2('=', left, new Op2('-', left, right)) }
+    / left:LeftExpression "*" ws* "=" right:logical { return new Op2('=', left, new Op2('*', left, right)) }
+    / left:LeftExpression "/" ws* "=" right:logical { return new Op2('=', left, new Op2('/', left, right)) }
+    / left:LeftExpression "%" ws* "=" right:logical { return new Op2('=', left, new Op2('%', left, right)) }
+    / left:LeftExpression "<<" ws* "=" right:logical { return new Op2('=', left, new Op2('<<', left, right)) }
+    / left:LeftExpression ">>" ws* "=" right:logical { return new Op2('=', left, new Op2('>>', left, right)) }
+    / left:LeftExpression "&" ws* "=" right:logical { return new Op2('=', left, new Op2('&', left, right)) }
+    / left:LeftExpression "^" ws* "=" right:logical { return new Op2('=', left, new Op2('^', left, right)) }
+    / left:LeftExpression "|" ws* "=" right:logical { return new Op2('=', left, new Op2('|', left, right)) }
     / logical
 
+LeftExpression
+    = call
+    / MemberExpression
+
+MemberExpression
+    = base:primary accessors:(
+          ws* "[" ws* name:assignment? ws* "]" ws*  { return name }
+        / ws* "." ws* name:identifier ws*           { return name }
+      )* {
+        var result = base
+        for(var i=0; i<accessors.length; ++i)
+        {
+            result = {
+                type: 'PropertyAccess',
+                base: result,
+                name: accessors[i]
+            }
+        }
+        return result
+      }
 logical
     = left:bitwise "||" right:logical { return new Op2('||', left, right) }
     / left:bitwise "&&" right:logical { return new Op2('&&', left, right) }
@@ -172,17 +185,6 @@ primary
     / ws* "(" assignment:assignment ")" ws* { return assignment }
     / ws* "(" conditional:conditional ")" ws* { return conditional }
 
-/*array_access
-    = primary:array_accessible "[" expr:assignment? "]" ws* { return new ArrayAccess(primary, expr) }
-
-array_accessible
-    = call
-    / array
-    / identifier
-    / string
-    / ws* "(" conditional:conditional ")" ws* { return conditional }
-*/
-
 array
     = ws* "[" paramlist:paramlist "]" ws* { return new Data('array', paramlist) }
 
@@ -213,8 +215,7 @@ output
     / identifier:identifier ws* { return new Output(identifier) }
 
 identifier
-    = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* "[" expr:assignment? "]" ws* { return new ArrayAccess(new Data('identifier', first + rest.join('')), expr) }
-    / ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
+    = ws* first:[A-Za-z_] rest:[A-Za-z_0-9]* ws* { return new Data('identifier', first + rest.join('')) }
 
 string "string"
     = ws* "\"" chars:string_character* "\"" ws* { return new Data('string', chars.join('')) }
