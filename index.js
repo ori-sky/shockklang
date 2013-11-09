@@ -289,6 +289,10 @@ fs.readFile(filename, function(err, data)
     }
     catch(e)
     {
-        throw e
+        if(e.name === 'SyntaxError')
+        {
+            console.log(e.line + ':' + e.column + ' syntax error at `' + e.found + '`')
+        }
+        else throw e
     }
 })
