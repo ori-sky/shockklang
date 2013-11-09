@@ -14,3 +14,10 @@ position = [3, 2]
 print("one: " + one)
 print("two: " + two)
 print(position)
+
+three = []
+three[] = [5, 6, 2]
+three[] = 4
+print("three: " + three)
+three[0][0] += 2
+print("new 3: " + three)
