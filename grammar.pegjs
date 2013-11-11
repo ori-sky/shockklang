@@ -126,7 +126,7 @@ MemberExpression
     = base:primary accessors:(
           ws* "[" ws* name:assignment? ws* "]" ws*  { return name }
         / ws* "." ws* name:identifier ws*           { return name }
-      )* {
+      )* paramlists:("(" p:paramlists ")" ws* { return p })? {
         var result = base
         for(var i=0; i<accessors.length; ++i)
         {
@@ -136,8 +136,10 @@ MemberExpression
                 name: accessors[i]
             }
         }
+        return paramlists === '' ? result : new Call(result, paramlists)
         return result
       }
+
 logical
     = left:bitwise "||" right:logical { return new Op2('||', left, right) }
     / left:bitwise "&&" right:logical { return new Op2('&&', left, right) }
