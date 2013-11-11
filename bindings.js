@@ -14,9 +14,92 @@
  *  limitations under the License.
  */
 
-module.exports = {}
-
+var util = require('util')
 var net = require('net')
+
+module.exports = {
+    Types: {
+        SLUndefined: function() {
+            this.type = 'SLUndefined'
+            this.toString = function() { return '[shockklang Undefined]' }
+        },
+        SLString: function(data) {
+            this.type = 'SLString'
+            this.data = data
+
+            this.toString = function() { return this.data }
+
+            this.add = function(obj)
+            {
+                return new module.exports.Types.SLString(this.data + obj.toString())
+            }
+
+            this.equals = function(obj)
+            {
+                return new module.exports.Types.SLNumber(this.data === obj.toString())
+            }
+
+            this.members = {
+                length: this.data.length
+            }
+        },
+        SLNumber: function(data) {
+            this.type = 'SLNumber'
+            this.data = data
+
+            this.toString = function() { return this.data.toString() }
+            this.toNumber = function() { return this.data }
+
+            this.add = function(obj)
+            {
+                if(typeof obj.toNumber === 'function')
+                {
+                    return new module.exports.Types.SLNumber(this.data + obj.toNumber())
+                }
+                else return new module.exports.Types.SLString(this.toString() + obj.toString())
+            }
+
+            this.equals = function(obj)
+            {
+                if(typeof obj.toNumber === 'function')
+                {
+                    var result = this.data === obj.toNumber() ? 1 : 0
+                    return new module.exports.Types.SLNumber(result)
+                }
+                else
+                {
+                    var result = this.toString() === obj.toString()
+                    return new module.exports.Types.SLNumber(result)
+                }
+            }
+
+            this.members = {}
+        },
+        SLArray: function(data) {
+            this.type = 'SLArray'
+
+            this.toString = function()
+            {
+                var mapped = []
+                for(var i=0; i<this.members.length; ++i)
+                {
+                    mapped.push(this.members[i].toString())
+                }
+                return '[' + mapped.join(', ') + ']'
+            }
+
+            this.push = function(obj)
+            {
+                this.members[this.members.length++] = obj
+            }
+
+            this.members = {
+                length: data.length
+            }
+            for(var i=0; i<data.length; ++i) this.members[i] = data[i]
+        }
+    }
+}
 
 module.exports.print = function($, obj)
 {
@@ -44,7 +127,7 @@ module.exports.socket_connect = function($, port, host, callback)
 {
     var socket = new net.Socket()
     socket.setNoDelay()
-    socket.connect(port, host, function()
+    socket.connect(port.toNumber(), host.toString(), function()
     {
         $.call(callback)
     })
@@ -56,7 +139,7 @@ module.exports.socket_send = function($, socket, data)
 {
     if(socket === undefined || socket.objtype !== 'SLSocket') throw new Error('socket_on_data: expected SLSocket')
 
-    socket.socket.write(data)
+    socket.socket.write(data.toString())
 }
 
 module.exports.socket_on_data = function($, socket, callback)

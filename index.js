@@ -17,6 +17,7 @@
 var fs = require('fs')
 var util = require('util')
 var parser = require('./parser')
+var SL = require('./bindings')
 
 var Fn = function(ins, outs, code)
 {
@@ -167,15 +168,15 @@ state.set = function(name, value)
             var arr = state.evaluate(name.base)
             var index = state.evaluate(name.name)
 
-            if(index === '') arr.data.push(value)
-            else arr.data[index] = value
+            if(index === '') arr.push(value)
+            else arr.members[index] = value
 
             return value
         default: console.log('assignable type unhandled: ' + name.type)
     }
 }
 
-state.evaluate = function(obj)
+state.evaluate = function(obj, eval_identifier)
 {
     switch(typeof obj)
     {
@@ -189,36 +190,37 @@ state.evaluate = function(obj)
         case '=':
             return state.set(obj.left, state.evaluate(obj.right))
         case '+':
-            return state.evaluate(obj.left) + state.evaluate(obj.right)
+            return state.evaluate(obj.left).add(state.evaluate(obj.right))
         case '-':
-            return state.evaluate(obj.left) - state.evaluate(obj.right)
+            return state.evaluate(obj.left).subtract(state.evaluate(obj.right))
         case '*':
-            return state.evaluate(obj.left) * state.evaluate(obj.right)
+            return state.evaluate(obj.left).multiply(state.evaluate(obj.right))
         case '&':
-            return state.evaluate(obj.left) & state.evaluate(obj.right)
+            return state.evaluate(obj.left).binaryAnd(state.evaluate(obj.right))
         case '|':
-            return state.evaluate(obj.left) | state.evaluate(obj.right)
+            return state.evaluate(obj.left).binaryOr(state.evaluate(obj.right))
         case '<<':
-            return state.evaluate(obj.left) << state.evaluate(obj.right)
+            return state.evaluate(obj.left).shiftLeft(state.evaluate(obj.right))
         case '>>':
-            return state.evaluate(obj.left) >> state.evaluate(obj.right)
+            return state.evaluate(obj.left).shiftRight(state.evaluate(obj.right))
         case '==':
-            return state.evaluate(obj.left) == state.evaluate(obj.right)
+            return state.evaluate(obj.left).equals(state.evaluate(obj.right))
         case 'number':
+            return new SL.Types.SLNumber(obj.data)
         case 'string':
-            return obj.data
+            return new SL.Types.SLString(obj.data)
         case 'identifier':
-            return state.get(obj.data)
+            return eval_identifier === false
+                 ? obj.data
+                 : state.get(obj.data)
         case 'array':
-            return {type: 'array', data: obj.data.map(state.evaluate),
-                    toString: function() { return '[' + this.data.join(', ') + ']' }
-            }
+            return new SL.Types.SLArray(obj.members.map(state.evaluate))
         case 'PropertyAccess':
             var arr = state.evaluate(obj.base)
-            var index = state.evaluate(obj.name)
+            var index = state.evaluate(obj.name, false)
 
-            if(index === '') var ret = arr.data[arr.data.length - 1]
-            else var ret = arr.data[index]
+            if(index === '') var ret = arr.members[arr.members.length - 1]
+            else var ret = arr.members[index]
 
             return ret !== undefined ? ret : '[shockklang undefined]'
         case 'conditional':
@@ -228,7 +230,8 @@ state.evaluate = function(obj)
                               ? true
                               : state.evaluate(obj.data[i].condition)
 
-                if(condition !== undefined && condition !== null && condition !== 0 && condition !== false)
+                if(condition.data !== 0)
+                //if(condition !== undefined && condition !== null && condition !== 0 && condition !== false)
                 {
                     var result
                     obj.data[i].code.forEach(function(v, k, a)
