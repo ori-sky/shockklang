@@ -31,16 +31,23 @@ module.exports.Types.SLString = function(data)
     this.type = 'SLString'
     this.data = data
 
-    this.toString = function() { return this.data }
+    this.toString = function() { return this.data.toString() }
 
     this.binaryOp = function(obj, cb)
     {
         return new module.exports.Types.SLString(cb(this.data, obj.toString()))
     }
 
-    this.members = {
-        length: this.data.length
-    }
+    this.members = {}
+    this.members.length = this.data.length
+    this.members.split = function($, delimiter)
+    {
+        var mapped = this.toString().split(delimiter).map(function(v)
+        {
+            return new module.exports.Types.SLString(v)
+        })
+        return new module.exports.Types.SLArray(mapped)
+    }.bind(this)
 }
 
 module.exports.Types.SLNumber = function(data)
@@ -82,9 +89,9 @@ module.exports.Types.SLArray = function(data)
         this.members[this.members.length++] = obj
     }
 
-    this.members = {
-        length: data.length
-    }
+    this.members = {}
+    this.members.length = data.length
+
     for(var i=0; i<data.length; ++i) this.members[i] = data[i]
 }
 
@@ -135,6 +142,6 @@ module.exports.socket_on_data = function($, socket, callback)
 
     socket.socket.on('data', function(data)
     {
-        $.call(callback, [data.toString()])
+        $.call(callback, [new module.exports.Types.SLString(data.toString())])
     })
 }
