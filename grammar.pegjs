@@ -28,6 +28,12 @@
         this.data = data
     }
 
+    TypeArray = function(members)
+    {
+        this.type = 'array'
+        this.members = members
+    }
+
     Output = function(identifier, initial)
     {
         this.type = 'output'
@@ -186,7 +192,7 @@ primary
     / ws* "(" conditional:conditional ")" ws* { return conditional }
 
 array
-    = ws* "[" paramlist:paramlist "]" ws* { return new Data('array', paramlist) }
+    = ws* "[" paramlist:paramlist "]" ws* { return new TypeArray(paramlist) }
 
 call
     = identifier:identifier "(" paramlists:paramlists ")" ws* { return new Call(identifier, paramlists) }
