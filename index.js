@@ -92,6 +92,7 @@ state.binding_call = function(fn, paramlist)
 state.call = function(fn, paramlist)
 {
     if(fn.is_binding) return state.binding_call(fn.fn, paramlist)
+    if(typeof fn === 'function') return state.binding_call(fn, paramlist)
 
     if(paramlist === undefined) paramlist = []
 
@@ -233,6 +234,7 @@ state.evaluate = function(obj, eval_identifier)
             return new SL.Types.SLNumber(obj.data)
         case 'string':
             return new SL.Types.SLString(obj.data)
+        case 'SLString': return obj
         case 'identifier':
             return eval_identifier === false
                  ? obj.data
@@ -269,13 +271,13 @@ state.evaluate = function(obj, eval_identifier)
             return new Fn(obj.ins, obj.outs, obj.code)
         case 'call':
         case 'anoncall':
-            if(obj.type === 'call') var fn = state.get(obj.identifier.data)
+            if(obj.type === 'call') var fn = state.evaluate(obj.identifier)
             else var fn = obj.fn
 
             if(fn === undefined)
                 throw new Error('identifier `' + obj.identifier.data + '` is undefined')
 
-            if(fn.type !== 'function')
+            if(fn.type !== 'function' && typeof fn !== 'function')
                 throw new Error('identifier `' + obj.identifier.data + '` is not a function')
 
             var result
