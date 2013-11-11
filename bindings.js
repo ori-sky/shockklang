@@ -17,69 +17,75 @@
 var util = require('util')
 var net = require('net')
 
-module.exports = {
-    Types: {
-        SLUndefined: function() {
-            this.type = 'SLUndefined'
-            this.toString = function() { return '[shockklang Undefined]' }
-        },
-        SLString: function(data) {
-            this.type = 'SLString'
-            this.data = data
+module.exports = {}
+module.exports.Types = {}
 
-            this.toString = function() { return this.data }
+module.exports.Types.SLUndefined = function()
+{
+    this.type = 'SLUndefined'
+    this.toString = function() { return '[shockklang Undefined]' }
+}
 
-            this.binaryOp = function(obj, cb)
-            {
-                return new module.exports.Types.SLString(cb(this.data, obj.toString()))
-            }
+module.exports.Types.SLString = function(data)
+{
+    this.type = 'SLString'
+    this.data = data
 
-            this.members = {
-                length: this.data.length
-            }
-        },
-        SLNumber: function(data) {
-            this.type = 'SLNumber'
-            this.data = data
+    this.toString = function() { return this.data }
 
-            this.toString = function() { return this.data.toString() }
-            this.toNumber = function() { return this.data }
-
-            this.binaryOp = function(obj, cb)
-            {
-                if(typeof obj.toNumber === 'function')
-                {
-                    return new module.exports.Types.SLNumber(cb(this.data, obj.toNumber()))
-                }
-                else return new module.exports.Types.SLString(cb(this.toString(), obj.toString()))
-            }
-
-            this.members = {}
-        },
-        SLArray: function(data) {
-            this.type = 'SLArray'
-
-            this.toString = function()
-            {
-                var mapped = []
-                for(var i=0; i<this.members.length; ++i)
-                {
-                    mapped.push(this.members[i].toString())
-                }
-                return '[' + mapped.join(', ') + ']'
-            }
-
-            this.push = function(obj)
-            {
-                this.members[this.members.length++] = obj
-            }
-
-            this.members = {
-                length: data.length
-            }
-            for(var i=0; i<data.length; ++i) this.members[i] = data[i]
-        }
+    this.binaryOp = function(obj, cb)
+    {
+        return new module.exports.Types.SLString(cb(this.data, obj.toString()))
     }
+
+    this.members = {
+        length: this.data.length
+    }
+}
+
+module.exports.Types.SLNumber = function(data)
+{
+    this.type = 'SLNumber'
+    this.data = data
+
+    this.toString = function() { return this.data.toString() }
+    this.toNumber = function() { return this.data }
+
+    this.binaryOp = function(obj, cb)
+    {
+        if(typeof obj.toNumber === 'function')
+        {
+            return new module.exports.Types.SLNumber(cb(this.data, obj.toNumber()))
+        }
+        else return new module.exports.Types.SLString(cb(this.toString(), obj.toString()))
+    }
+
+    this.members = {}
+}
+
+module.exports.Types.SLArray = function(data)
+{
+    this.type = 'SLArray'
+
+    this.toString = function()
+    {
+        var mapped = []
+        for(var i=0; i<this.members.length; ++i)
+        {
+            mapped.push(this.members[i].toString())
+        }
+        return '[' + mapped.join(', ') + ']'
+    }
+
+    this.push = function(obj)
+    {
+        this.members[this.members.length++] = obj
+    }
+
+    this.members = {
+        length: data.length
+    }
+    for(var i=0; i<data.length; ++i) this.members[i] = data[i]
 }
 
 module.exports.print = function($, obj)
