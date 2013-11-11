@@ -29,14 +29,9 @@ module.exports = {
 
             this.toString = function() { return this.data }
 
-            this.add = function(obj)
+            this.binaryOp = function(obj, cb)
             {
-                return new module.exports.Types.SLString(this.data + obj.toString())
-            }
-
-            this.equals = function(obj)
-            {
-                return new module.exports.Types.SLNumber(this.data === obj.toString())
+                return new module.exports.Types.SLString(cb(this.data, obj.toString()))
             }
 
             this.members = {
@@ -50,27 +45,13 @@ module.exports = {
             this.toString = function() { return this.data.toString() }
             this.toNumber = function() { return this.data }
 
-            this.add = function(obj)
+            this.binaryOp = function(obj, cb)
             {
                 if(typeof obj.toNumber === 'function')
                 {
-                    return new module.exports.Types.SLNumber(this.data + obj.toNumber())
+                    return new module.exports.Types.SLNumber(cb(this.data, obj.toNumber()))
                 }
-                else return new module.exports.Types.SLString(this.toString() + obj.toString())
-            }
-
-            this.equals = function(obj)
-            {
-                if(typeof obj.toNumber === 'function')
-                {
-                    var result = this.data === obj.toNumber() ? 1 : 0
-                    return new module.exports.Types.SLNumber(result)
-                }
-                else
-                {
-                    var result = this.toString() === obj.toString()
-                    return new module.exports.Types.SLNumber(result)
-                }
+                else return new module.exports.Types.SLString(cb(this.toString(), obj.toString()))
             }
 
             this.members = {}

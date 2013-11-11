@@ -190,21 +190,45 @@ state.evaluate = function(obj, eval_identifier)
         case '=':
             return state.set(obj.left, state.evaluate(obj.right))
         case '+':
-            return state.evaluate(obj.left).add(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one + two
+            })
         case '-':
-            return state.evaluate(obj.left).subtract(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one - two
+            })
         case '*':
-            return state.evaluate(obj.left).multiply(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one * two
+            })
         case '&':
-            return state.evaluate(obj.left).binaryAnd(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one & two
+            })
         case '|':
-            return state.evaluate(obj.left).binaryOr(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one | two
+            })
         case '<<':
-            return state.evaluate(obj.left).shiftLeft(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one << two
+            })
         case '>>':
-            return state.evaluate(obj.left).shiftRight(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one >> two
+            })
         case '==':
-            return state.evaluate(obj.left).equals(state.evaluate(obj.right))
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one == two ? 1 : 0
+            })
         case 'number':
             return new SL.Types.SLNumber(obj.data)
         case 'string':
@@ -231,7 +255,6 @@ state.evaluate = function(obj, eval_identifier)
                               : state.evaluate(obj.data[i].condition)
 
                 if(condition.data !== 0)
-                //if(condition !== undefined && condition !== null && condition !== 0 && condition !== false)
                 {
                     var result
                     obj.data[i].code.forEach(function(v, k, a)
