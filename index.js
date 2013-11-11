@@ -230,6 +230,11 @@ state.evaluate = function(obj, eval_identifier)
             {
                 return one == two ? 1 : 0
             })
+        case '&&':
+            return state.evaluate(obj.left).binaryOp(state.evaluate(obj.right), function(one, two)
+            {
+                return one && two ? 1 : 0
+            })
         case 'number':
             return new SL.Types.SLNumber(obj.data)
         case 'string':
@@ -248,7 +253,7 @@ state.evaluate = function(obj, eval_identifier)
             if(index === '') var ret = arr.members[arr.members.length - 1]
             else var ret = arr.members[index]
 
-            return ret !== undefined ? ret : '[shockklang undefined]'
+            return ret !== undefined ? ret : new SL.Types.SLUndefined()
         case 'conditional':
             for(var i=0; i<obj.data.length; ++i)
             {
@@ -256,7 +261,7 @@ state.evaluate = function(obj, eval_identifier)
                               ? true
                               : state.evaluate(obj.data[i].condition)
 
-                if(condition.data !== 0)
+                if(condition !== undefined && condition.data !== 0)
                 {
                     var result
                     obj.data[i].code.forEach(function(v, k, a)
