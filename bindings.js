@@ -136,41 +136,27 @@ module.exports.Types.SLSocket = function(socket)
     }
 
     this.members = {}
+    this.members.send = function($, data)
+    {
+        this.socket.write(data.toString())
+    }.bind(this)
+    this.members.onData = function($, cb)
+    {
+        this.socket.on('data', function(data)
+        {
+            $.call(cb, [new module.exports.Types.SLString(data.toString())])
+        })
+    }.bind(this)
 }
 
-var SLSocket = function(socket)
-{
-    this.type = 'object'
-    this.objtype = 'SLSocket'
-    this.socket = socket
-    this.toString = function() { return '[shockklang SLSocket]' }
-}
-
-module.exports.socket_connect = function($, port, host, callback)
+module.exports.socket_connect = function($, port, host, cb)
 {
     var socket = new net.Socket()
     socket.setNoDelay()
     socket.connect(port.toNumber(), host.toString(), function()
     {
-        $.call(callback)
+        $.call(cb)
     })
 
-    return new SLSocket(socket)
-}
-
-module.exports.socket_send = function($, socket, data)
-{
-    if(socket === undefined || socket.objtype !== 'SLSocket') throw new Error('socket_on_data: expected SLSocket')
-
-    socket.socket.write(data.toString())
-}
-
-module.exports.socket_on_data = function($, socket, callback)
-{
-    if(socket === undefined || socket.objtype !== 'SLSocket') throw new Error('socket_on_data: expected SLSocket')
-
-    socket.socket.on('data', function(data)
-    {
-        $.call(callback, [new module.exports.Types.SLString(data.toString())])
-    })
+    return new module.exports.Types.SLSocket(socket)
 }

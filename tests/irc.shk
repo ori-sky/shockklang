@@ -7,11 +7,11 @@ irc_chan = "#darkf"
 sock = socket_connect(6667, irc_addr, (=>)
 {
     print("connected")
-    socket_send(sock, "NICK " + irc_nick + "\r\n")
-    socket_send(sock, "USER " + irc_ident + " 0 * :" + irc_realname + "\r\n")
+    send("NICK " + irc_nick)
+    send("USER " + irc_ident + " 0 * :" + irc_realname)
 })
 
-socket_on_data(sock, (data =>)
+recv = (data =>)
 {
     lines = data.split("\r\n")
     words = lines[0].split(" ")
@@ -21,12 +21,12 @@ socket_on_data(sock, (data =>)
     words[0] == "PING" ? send("PONG " + words[1])
     words[1] == "PRIVMSG" && words[2] == irc_chan && words[3] == ":λ" ? send("PRIVMSG " + words[2] + " :λambda, bitch")
     words[1] == "PRIVMSG" && words[2] == irc_nick ? send("JOIN " + irc_chan)
-})
-
-send = (data=>)
-{
-    print("-> " + data)
-    socket_send(sock, data + "\r\n")
 }
 
-print(sock)
+send = (data =>)
+{
+    print("-> " + data)
+    sock.send(data + "\r\n")
+}
+
+sock.onData(recv)
