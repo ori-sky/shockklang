@@ -24,6 +24,13 @@ module.exports.Types.SLUndefined = function()
 {
     this.type = 'SLUndefined'
     this.toString = function() { return '[shockklang Undefined]' }
+
+    this.binaryOp = function(obj, cb)
+    {
+        var result = cb(this.type, obj.type)
+        if(typeof result === 'number') return new module.exports.Types.SLNumber(result)
+        else return this
+    }
 }
 
 module.exports.Types.SLString = function(data)
@@ -35,7 +42,15 @@ module.exports.Types.SLString = function(data)
 
     this.binaryOp = function(obj, cb)
     {
-        return new module.exports.Types.SLString(cb(this.data, obj.toString()))
+        var result = cb(this.data, obj.toString())
+
+        switch(typeof result)
+        {
+            case 'number':
+                return new module.exports.Types.SLNumber(result)
+            default:
+                return new module.exports.Types.SLString(result)
+        }
     }
 
     this.members = {}
@@ -100,13 +115,27 @@ module.exports.print = function($, obj)
     console.log(obj.toString())
 }
 
-module.exports.string_get_word = function($, str, i)
+module.exports.Types.SLSocket = function(socket)
 {
-    if(typeof str !== 'string') throw new Error('string_split(1): expected string')
-    if(typeof i !== 'number') throw new Error('string_split(2): expected number')
+    this.type = 'SLSocket'
+    this.socket = socket
 
-    var words = str.split(' ')
-    return words[i]
+    this.toString = function() { return '[shockklang SLSocket]' }
+
+    this.binaryOp = function(obj, cb)
+    {
+        var result = cb(this.data, obj.toString())
+
+        switch(typeof result)
+        {
+            case 'number':
+                return new module.exports.Types.SLNumber(result)
+            default:
+                return new module.exports.Types.SLString(result)
+        }
+    }
+
+    this.members = {}
 }
 
 var SLSocket = function(socket)
