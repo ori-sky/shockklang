@@ -1,20 +1,32 @@
 irc_nick = "shockklang"
 irc_ident = "shockklang"
 irc_realname = "Shockklang Bot"
+irc_addr = "irc.freenode.net"
+irc_chan = "#darkf"
 
-sock = socket_connect(6667, "irc.freenode.net", (=>)
+sock = socket_connect(6667, irc_addr, (=>)
 {
     print("connected")
     socket_send(sock, "NICK " + irc_nick + "\r\n")
     socket_send(sock, "USER " + irc_ident + " 0 * :" + irc_realname + "\r\n")
-    socket_send(sock, "JOIN #darkf\r\n")
 })
 
 socket_on_data(sock, (data =>)
 {
-    print("data received: " + data)
+    lines = data.split("\r\n")
+    words = lines[0].split(" ")
 
-    string_get_word(data, 0) == "PING"? socket_send(sock, "PONG " + string_get_word(data, 1))
+    print("<- " + lines[0])
+
+    words[0] == "PING" ? send("PONG " + words[1])
+    words[1] == "PRIVMSG" && words[2] == irc_chan && words[3] == ":λ" ? send("PRIVMSG " + words[2] + " :λambda, bitch")
+    words[1] == "PRIVMSG" && words[2] == irc_nick ? send("JOIN " + irc_chan)
 })
+
+send = (data=>)
+{
+    print("-> " + data)
+    socket_send(sock, data + "\r\n")
+}
 
 print(sock)
